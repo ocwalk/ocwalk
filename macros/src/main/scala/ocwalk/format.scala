@@ -178,7 +178,7 @@ object format {
     }
     c.Expr[AF[A, B]] {
       q"""
-      new cross.format.AbstractFormat[$tpe, $fmt] {
+      new ocwalk.format.AbstractFormat[$tpe, $fmt] {
         override def read(path: Path, format0: $fmt): ($tpe, $fmt) = { $read }
         override def append(path: Path, a: $tpe, format0: $fmt): $fmt = { $append }
         override def isDefinedFor(a: Any): Boolean = a match {
@@ -201,26 +201,26 @@ object format {
     import c.universe._
     val elements = operations
       .map {
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$eq     $value""") =>
-          (path, Some(value), q"""cross.format.Operations.EqualTo""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$neq    $value""") =>
-          (path, Some(value), q"""cross.format.Operations.NotEqualTo""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$gt     $value""") =>
-          (path, Some(value), q"""cross.format.Operations.GreaterThan""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$gte    $value""") =>
-          (path, Some(value), q"""cross.format.Operations.GreaterThanOrEqualTo""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$lt     $value""") =>
-          (path, Some(value), q"""cross.format.Operations.LessThan""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$lte    $value""") =>
-          (path, Some(value), q"""cross.format.Operations.LessThanOrEqualTo""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$in     $value""") =>
-          (path, Some(value), q"""cross.format.Operations.In""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$exists $value""") =>
-          (path, Some(value), q"""cross.format.Operations.Exists""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$asc       """) =>
-          (path, None, q"""cross.format.Operations.SortAsc""")
-        case Function(_, q"""cross.format.AnyFormatOps[$tpe]($path) $$desc      """) =>
-          (path, None, q"""cross.format.Operations.SortDesc""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$eq     $value""") =>
+          (path, Some(value), q"""ocwalk.format.Operations.EqualTo""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$neq    $value""") =>
+          (path, Some(value), q"""ocwalk.format.Operations.NotEqualTo""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$gt     $value""") =>
+          (path, Some(value), q"""ocwalk.format.Operations.GreaterThan""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$gte    $value""") =>
+          (path, Some(value), q"""ocwalk.format.Operations.GreaterThanOrEqualTo""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$lt     $value""") =>
+          (path, Some(value), q"""ocwalk.format.Operations.LessThan""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$lte    $value""") =>
+          (path, Some(value), q"""ocwalk.format.Operations.LessThanOrEqualTo""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$in     $value""") =>
+          (path, Some(value), q"""ocwalk.format.Operations.In""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$exists $value""") =>
+          (path, Some(value), q"""ocwalk.format.Operations.Exists""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$asc       """) =>
+          (path, None, q"""ocwalk.format.Operations.SortAsc""")
+        case Function(_, q"""ocwalk.format.AnyFormatOps[$tpe]($path) $$desc      """) =>
+          (path, None, q"""ocwalk.format.Operations.SortDesc""")
         case other =>
           c.abort(c.enclosingPosition, s"failed to recognize tree as expression: ${showCode(other)}")
       }
@@ -229,9 +229,9 @@ object format {
       }
       .map {
         case (path, None, operation) =>
-          q"""cross.format.UnaryOperation(List(..$path), $operation)"""
+          q"""ocwalk.format.UnaryOperation(List(..$path), $operation)"""
         case (path, Some(value), operation) =>
-          q"""cross.format.BinaryOperation(List(..$path), $operation, $value)"""
+          q"""ocwalk.format.BinaryOperation(List(..$path), $operation, $value)"""
       }
     c.Expr[A] {
       q"""
@@ -254,9 +254,9 @@ object format {
   private def extractPath(c: blackbox.Context)(tree: Trees#Tree): List[c.Tree] = {
     import c.universe._
     tree match {
-      case q"""cross.format.ListFormatOps[$tpe]($head).anyElement""" => extractPath(c)(head) :+ q"""cross.format.ArrayPathSegment(-1)"""
-      case q"""cross.format.ListFormatOps[$tpe]($head).someElement""" => extractPath(c)(head) :+ q"""cross.format.ArrayPathSegment(-2)"""
-      case Select(head: c.Tree, TermName(tail)) => extractPath(c)(head) :+ q"""cross.format.FieldPathSegment($tail)"""
+      case q"""ocwalk.format.ListFormatOps[$tpe]($head).anyElement""" => extractPath(c)(head) :+ q"""ocwalk.format.ArrayPathSegment(-1)"""
+      case q"""ocwalk.format.ListFormatOps[$tpe]($head).someElement""" => extractPath(c)(head) :+ q"""ocwalk.format.ArrayPathSegment(-2)"""
+      case Select(head: c.Tree, TermName(tail)) => extractPath(c)(head) :+ q"""ocwalk.format.FieldPathSegment($tail)"""
       case _ => Nil
     }
   }

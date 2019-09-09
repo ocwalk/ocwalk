@@ -1,5 +1,6 @@
 package ocwalk.util
 
+import ocwalk.conf
 import ocwalk.util.global.GlobalContext
 import org.scalajs.dom
 
@@ -48,15 +49,15 @@ object logging {
 
   /** Prints logs to browser console */
   object BrowserLogApi extends LogApi with GlobalContext {
-    override def wire(message: String)(implicit key: LogKey): Unit = if (config.log.Wire) {
+    override def wire(message: String)(implicit key: LogKey): Unit = if (conf.Config.logs.wire) {
       dom.window.console.warn(s"$key $message")
     }
 
-    override def debug(message: String)(implicit key: LogKey): Unit = if (config.log.Debug) {
+    override def debug(message: String)(implicit key: LogKey): Unit = if (conf.Config.logs.debug) {
       dom.window.console.log(s"$key ${System.currentTimeMillis()} $message")
     }
 
-    override def info(message: String)(implicit key: LogKey): Unit = if (config.log.Info) {
+    override def info(message: String)(implicit key: LogKey): Unit = if (conf.Config.logs.info) {
       dom.window.console.log(s"$key $message")
     }
 
@@ -64,11 +65,11 @@ object logging {
       this.info(message)
     }
 
-    override def warn(message: String)(implicit key: LogKey): Unit = if (config.log.Warnings) {
+    override def warn(message: String)(implicit key: LogKey): Unit = if (conf.Config.logs.warnings) {
       dom.window.console.warn(s"$key $message")
     }
 
-    override def error(message: String, error: Throwable)(implicit key: LogKey): Unit = if (config.log.Errors) {
+    override def error(message: String, error: Throwable)(implicit key: LogKey): Unit = if (conf.Config.logs.errors) {
       dom.console.error(s"$key $message")
       error.printStackTrace()
     }

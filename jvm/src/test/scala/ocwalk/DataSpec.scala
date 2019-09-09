@@ -2,7 +2,7 @@ package ocwalk
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import configs.common.{Data, LazyData, ListenerId}
+import ocwalk.common._
 
 class DataSpec extends Spec {
   implicit val listenerId: ListenerId = ListenerId()

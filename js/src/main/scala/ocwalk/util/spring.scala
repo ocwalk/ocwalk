@@ -4,11 +4,11 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import ocwalk.common._
+import ocwalk.mvc.Controller
 import ocwalk.ops._
 import ocwalk.pixi._
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.logging.Logging
-import ocwalk.util.mvc.GenericController
 
 import scala.concurrent.Future
 
@@ -31,7 +31,7 @@ object spring extends GlobalContext with Logging {
   }
 
   /** Loads the update loop */
-  def load()(implicit controller: GenericController[_]): Future[Unit] = Future {
+  def load()(implicit controller: Controller): Future[Unit] = Future {
     log.info("starting...")
     controller.model.tick /> { case tick => update() }
     log.info("is running")

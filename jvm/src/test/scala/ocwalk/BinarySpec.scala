@@ -1,9 +1,8 @@
 package ocwalk
 
-import configs.binary._
-import configs.common._
-import configs.format._
-import configs.protocol._
+import ocwalk.binary._
+import ocwalk.common._
+import ocwalk.format._
 
 class BinarySpec extends Spec {
   val recompile = 1
@@ -104,21 +103,6 @@ class BinarySpec extends Spec {
 
     "format address" in {
       check(Address("Jersey City", 1234))
-    }
-  }
-
-  "protocol" can {
-    def check[A <: Message](a: A): Unit = {
-      registry.write(a).validate { bytes =>
-        registry.read(bytes) shouldBe(a, ByteList.empty)
-      }
-    }
-
-    "format manager messages" in {
-      check(Connect(None))
-      check(Connect(Some(Session(uuid))))
-
-      check(Connected(Session(uuid), Player(uuid)))
     }
   }
 }

@@ -1,7 +1,7 @@
 package ocwalk
 
-import configs.ocwalk._
-import configs.format._
+import ocwalk.config._
+import ocwalk.format._
 
 import scala.concurrent.duration._
 

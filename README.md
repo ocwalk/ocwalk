@@ -20,23 +20,13 @@ Kickstarter: [https://www.kickstarter.com/projects/owispyo/ocwalk](https://www.k
 
 SBT:
 ```
-ocwalkJS/run
-ocwalkJVM/run
-ocwalkJS/clean ocwalkJS/fastOptJS moveJS pushJS
-ocwalkJVM/clean ocwalkJVM/assembly ocwalkJVM/docker
-ocwalkJVM/clean ocwalkJVM/assembly ocwalkJVM/dockerBuildAndPush
+all/clean: ocwalkJVM/clean ocwalkJS/clean
+jvm/build: ocwalkJVM/clean ocwalkJVM/compile ocwalkJVM/assembly
+js/build:  ocwalkJS/clean ocwalkJS/compile ocwalkJS/fastOptJS moveJS
 ```
 
 Server:
 ```
--Dpac.bot.token=""
--Dpac.bot.server="poku club"
--Dpac.bot.channel="art_challenge"
--Dpac.processor.mongo="mongodb://"
--Dpac.processor.database=""
--Dpac.thumbnailer.awsAccess=""
--Dpac.thumbnailer.awsSecret=""
--Dpac.processor.retryImages="true"
 ```
 
 Heroku:

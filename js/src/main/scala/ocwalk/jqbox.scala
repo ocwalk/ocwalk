@@ -3,8 +3,8 @@ package ocwalk
 import ocwalk.box._
 import ocwalk.common._
 import ocwalk.icon.MaterialDesign
+import ocwalk.mvc.Controller
 import ocwalk.util.logging.Logging
-import ocwalk.util.mvc.GenericController
 import org.querki.jquery._
 import org.scalajs.dom
 
@@ -30,7 +30,7 @@ object jqbox extends Logging {
   def itemBox: JQuery = $("<i>").addClass("box")
 
   /** Listens to screen size and rescales the root */
-  def scaleToScreen(controller: GenericController[_]): Unit = {
+  def scaleToScreen(controller: Controller): Unit = {
     controller.model.screen /> { case size =>
       boxContext.root.layout.fixedW.write(Some(size.x))
       boxContext.root.layout.fixedH.write(Some(size.y))

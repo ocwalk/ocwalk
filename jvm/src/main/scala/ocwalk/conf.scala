@@ -1,12 +1,11 @@
 package ocwalk
 
-import spray.json.DefaultJsonProtocol._
-import spray.json._
-import configs.config._
+import ocwalk.config._
+import ocwalk.format._
 
 import scala.concurrent.duration._
 
-object configs {
+object conf {
 
   /** Contains configuration general for all projects
     *
@@ -38,9 +37,7 @@ object configs {
   )
 
   implicit val reader: ConfigReader = JvmReader
-  implicit val generalConfigFormat: CF[OcwalkConfig] = format8(OcwalkConfig)
-
-  implicit val generalConfigJsonFormat: RootJsonFormat[OcwalkConfig] = jsonFormat8(OcwalkConfig)
+  implicit val ocwalkConfigFormat: CF[OcwalkConfig] = format7(OcwalkConfig)
 
   val Config: OcwalkConfig = configureNamespace("general", Some(DefaultOcwalkConfig))
 

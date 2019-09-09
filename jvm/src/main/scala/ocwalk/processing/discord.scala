@@ -1,4 +1,4 @@
-package ocwalk
+package ocwalk.processing
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -10,7 +10,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import com.typesafe.scalalogging.LazyLogging
 import ocwalk.common._
-import ocwalk.configs.OcwalkConfig
+import ocwalk.conf.OcwalkConfig
 import ocwalk.protocol.User
 import spray.json.DefaultJsonProtocol._
 import spray.json.RootJsonFormat

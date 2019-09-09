@@ -1,6 +1,6 @@
 package ocwalk
 
-import ocwalk.general.config.{JsReader, OcwalkConfig}
+import ocwalk.conf.{JsReader, OcwalkConfig}
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.http._
 import ocwalk.util.logging.Logging
@@ -14,7 +14,7 @@ object app extends App with GlobalContext with Logging {
   override protected def logKey: String = "app"
 
   config.setGlobalReader(JsReader)
-  implicit val generalConfig: OcwalkConfig = general.config.Config
+  implicit val conf: OcwalkConfig = ocwalk.conf.Config
 
   window.location.pathname match {
     case discord if discord.startsWith("/discord") =>
@@ -25,10 +25,10 @@ object app extends App with GlobalContext with Logging {
           redirect("/")
       }
     case _ =>
-      // startOcwalk("/")
+    // startOcwalk("/")
   }
 
-  def loginDiscord(code: String)(implicit generalConfig: OcwalkConfig): Unit = for {
+  def loginDiscord(code: String)(implicit config: OcwalkConfig): Unit = for {
     user <- Future.successful(None) // post[LoginDiscord, User]("/api/discord", LoginDiscord(code))
     _ = log.info(s"logged in as [$user]")
     _ = redirectSilent("/", preserveQuery = false)

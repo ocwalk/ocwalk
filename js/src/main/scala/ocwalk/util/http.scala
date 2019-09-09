@@ -4,7 +4,7 @@ import java.net.URI
 import java.util.Base64
 
 import ocwalk.binary._
-import ocwalk.general.config.OcwalkConfig
+import ocwalk.conf.OcwalkConfig
 import ocwalk.util.logging.Logging
 import org.scalajs.dom.{XMLHttpRequest, document, window}
 

@@ -1,10 +1,10 @@
-package ocwalk
+package ocwalk.processing
 
 import java.lang.System.currentTimeMillis
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import ocwalk.discord.DiscordUser
+import discord.DiscordUser
 
 object sessions {
 

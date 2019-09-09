@@ -1,7 +1,7 @@
 package ocwalk
 
-import configs.box._
-import configs.common._
+import ocwalk.box._
+import ocwalk.common._
 
 //noinspection TypeAnnotation
 class BoxSpec extends Spec {

@@ -11,9 +11,9 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import com.typesafe.scalalogging.LazyLogging
 import ocwalk.common._
 import ocwalk.config.JvmReader
-import ocwalk.configs.OcwalkConfig
-import ocwalk.routes.generalRoutes
-import ocwalk.sessions.{SessionManager, SessionManagerRef}
+import ocwalk.conf.OcwalkConfig
+import ocwalk.processing.routes.generalRoutes
+import ocwalk.processing.sessions.{SessionManager, SessionManagerRef}
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -22,7 +22,7 @@ import scala.concurrent.duration._
 object launcher extends App with LazyLogging {
   config.setGlobalReader(JvmReader)
 
-  implicit val generalConfig: OcwalkConfig = configs.Config
+  implicit val generalConfig: OcwalkConfig = conf.Config
 
   implicit val system: ActorSystem = ActorSystem("akka")
   implicit val materializer: ActorMaterializer = ActorMaterializer()

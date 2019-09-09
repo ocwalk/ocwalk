@@ -1,4 +1,4 @@
-package ocwalk
+package ocwalk.util
 
 import akka.actor.{Actor, ActorLogging}
 
@@ -47,5 +47,16 @@ object actors {
 
   /** Continues processing commands */
   private object Continue
+
+  /** Requests actor status */
+  object GetStatus
+
+  /** Describes the status of some system
+    *
+    * @param name    the name of the part of the project
+    * @param healthy true, if the system is healthy
+    * @param error   Some(message) describing why system is unhealthy
+    */
+  case class SystemStatus(name: String, healthy: Boolean, error: Option[String] = None)
 
 }

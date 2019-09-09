@@ -3,21 +3,22 @@ package ocwalk.util
 import java.util.UUID
 
 import ocwalk.common._
+import ocwalk.mvc.Controller
 import ocwalk.ops._
 import ocwalk.pixi.DisplayObject
 import ocwalk.util.global.GlobalContext
-import ocwalk.util.mvc.GenericController
 
 import scala.concurrent.duration._
 import scala.concurrent.{Future, Promise}
 
 object animation extends GlobalContext {
+  val AnimationDelay: FiniteDuration = 300.millis
   private var queue: Future[Unit] = UnitFuture
   private var current: Option[Player] = None
   private var time: Long = System.currentTimeMillis()
 
   /** Loads the animation loop */
-  def load()(implicit controller: GenericController[_]): Future[Unit] = Future {
+  def load()(implicit controller: Controller): Future[Unit] = Future {
     controller.model.tick /> { case _ => update() }
   }
 

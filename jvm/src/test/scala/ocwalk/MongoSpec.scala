@@ -4,8 +4,8 @@ import java.util.UUID
 
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import com.typesafe.scalalogging.LazyLogging
-import configs.format._
-import configs.mongo._
+import ocwalk.format._
+import ocwalk.mongo._
 import org.mongodb.scala.bson.Document
 import org.mongodb.scala.{MongoClient, Observable, SingleObservable}
 

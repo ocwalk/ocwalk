@@ -1,6 +1,6 @@
 package ocwalk
 
-import configs.common._
+import ocwalk.common._
 
 class Rec2dSpec extends Spec {
   "Rec2d" can {

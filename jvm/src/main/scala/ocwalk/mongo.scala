@@ -3,6 +3,7 @@ package ocwalk
 import akka.actor.Scheduler
 import ocwalk.common._
 import ocwalk.format._
+import ocwalk.util.actors.SystemStatus
 import ocwalk.util.akkautil._
 import org.mongodb.scala.bson._
 import org.mongodb.scala.{Document, MongoCollection, MongoDatabase}
@@ -307,14 +308,14 @@ object mongo {
       _ <- collection.deleteOne(query.apply(cct)).toFuture
     } yield ()
 
-    // /** Tests if collection is healthy */
-    // def status(prefix: String): Future[SystemStatus] = for {
-    //   collection <- delegate
-    //   status <- findOne().transform {
-    //     case Success(any) => Success(SystemStatus(s"$prefix.mongo.${collection.namespace.getCollectionName}", healthy = true))
-    //     case Failure(up) => Success(SystemStatus(s"$prefix.mongo.${collection.namespace.getCollectionName}", healthy = false, error = Some(up.getMessage)))
-    //   }
-    // } yield status
+    /** Tests if collection is healthy */
+    def status(prefix: String): Future[SystemStatus] = for {
+      collection <- delegate
+      status <- findOne().transform {
+        case Success(any) => Success(SystemStatus(s"$prefix.mongo.${collection.namespace.getCollectionName}", healthy = true))
+        case Failure(up) => Success(SystemStatus(s"$prefix.mongo.${collection.namespace.getCollectionName}", healthy = false, error = Some(up.getMessage)))
+      }
+    } yield status
 
   }
 

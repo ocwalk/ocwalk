@@ -3,16 +3,17 @@ package ocwalk
 import java.util.UUID
 
 import ocwalk.common._
+import ocwalk.mvc.Controller
 import ocwalk.pixi._
-import ocwalk.util.animation.{Animation, ChaseInOut, FadeIn, FadeOut, FlipIn, FlipOut, OffsetIn, OffsetOut, Parallel}
+import ocwalk.util.animation.{Animation, ChaseInOut, Delay, FadeIn, FadeOut, FlipIn, FlipOut, OffsetIn, OffsetOut, Parallel}
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.logging.Logging
-import ocwalk.util.mvc.GenericController
-import ocwalk.util.spring
 import ocwalk.util.spring.SpritePositionSpring
+import ocwalk.util.{animation, spring}
 import org.scalajs.dom
 
 import scala.annotation.tailrec
+import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 import scala.util.{Failure, Success, Try}
@@ -36,9 +37,6 @@ object ops extends GlobalContext with Logging {
   /** Converts rect2d into pixi rectangle */
   implicit def rect2dToRectangle(rect: Rec2d): Rectangle = new Rectangle(rect.position.x, rect.position.y, rect.size.x, rect.size.y)
 
-  /** Converts components to display objects */
-//  implicit def componentToDisplayObject[A <: Component](c: A): DisplayObject = c.toPixi
-
   /** On error, prints it's stacktrace to the console */
   def unsafe[A](message: String)(code: => A): A = Try(code) match {
     case Success(a) => a
@@ -49,28 +47,28 @@ object ops extends GlobalContext with Logging {
   }
 
   /** Builds a container bound to screen center and scale */
-  def centerStage(implicit controller: GenericController[_]): Container = new Container().bindScale(controller.model.scale).springToCenter
+  def centerStage(implicit controller: Controller): Container = new Container().bindScale(controller.model.scale).springToCenter
 
   /** Builds a container bound to screen top left corner and scale */
-  def topLeftStage(implicit controller: GenericController[_]): Container = new Container().bindScale(controller.model.scale)
+  def topLeftStage(implicit controller: Controller): Container = new Container().bindScale(controller.model.scale)
 
   /** Builds a container bound to screen top and scale */
-  def topStage(implicit controller: GenericController[_]): Container = new Container().bindScale(controller.model.scale).springTo(0.5 xy 0)
+  def topStage(implicit controller: Controller): Container = new Container().bindScale(controller.model.scale).springTo(0.5 xy 0)
 
   /** Builds a container bound to screen top right corner and scale */
-  def topRightStage(implicit controller: GenericController[_]): Container = new Container().bindScale(controller.model.scale).springTo(1 xy 0)
+  def topRightStage(implicit controller: Controller): Container = new Container().bindScale(controller.model.scale).springTo(1 xy 0)
 
   /** Builds a container bound to screen bottom left corner and scale */
-  def bottomLeftStage(implicit controller: GenericController[_]): Container = new Container().bindScale(controller.model.scale).springTo(0 xy 1)
+  def bottomLeftStage(implicit controller: Controller): Container = new Container().bindScale(controller.model.scale).springTo(0 xy 1)
 
   /** Builds a container bound to screen bottom and scale */
-  def bottomStage(implicit controller: GenericController[_]): Container = new Container().bindScale(controller.model.scale).springTo(0.5 xy 1)
+  def bottomStage(implicit controller: Controller): Container = new Container().bindScale(controller.model.scale).springTo(0.5 xy 1)
 
   /** Builds a container bound to screen bottom right corner and scale */
-  def bottomRightStage(implicit controller: GenericController[_]): Container = new Container().bindScale(controller.model.scale).springTo(1 xy 1)
+  def bottomRightStage(implicit controller: Controller): Container = new Container().bindScale(controller.model.scale).springTo(1 xy 1)
 
   /** Builds a delay animation with given amount of time */
-//  def delay(time: FiniteDuration = AnimationDelay): Animation = Delay(time)
+  def delay(time: FiniteDuration = animation.AnimationDelay): Animation = Delay(time)
 
   /** Randomizes the number between two given ones */
   def randomBetween(start: Double, end: Double): Double = start + Math.random() * (end - start)
@@ -154,7 +152,7 @@ object ops extends GlobalContext with Logging {
     def filterWith(filters: List[Filter]): A = a.mutate { a => a.filters = filters }
 
     /** Binds the location to given place */
-    def springTo(target: Vec2d)(implicit controller: GenericController[_]): A = a.mutate { a =>
+    def springTo(target: Vec2d)(implicit controller: Controller): A = a.mutate { a =>
       a.positionAt(controller.model.screen() * target)
       val s = SpritePositionSpring(a)
       controller.model.screen /> { case size => s.target = size * target }
@@ -162,7 +160,7 @@ object ops extends GlobalContext with Logging {
     }
 
     /** Binds the location to screen center */
-    def springToCenter(implicit controller: GenericController[_]): A = a.springTo(Vec2d.Center)
+    def springToCenter(implicit controller: Controller): A = a.springTo(Vec2d.Center)
 
     /** Binds the scale to a given bind */
     def bindScale(data: Data[Double]): A = a.mutate { a => data /> { case scale => a.scaleTo(scale) } }

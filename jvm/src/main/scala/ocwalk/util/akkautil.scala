@@ -17,8 +17,8 @@ import akka.pattern.ask
 import akka.stream.Materializer
 import akka.util.Timeout
 import ocwalk.binary._
-import ocwalk.configs.OcwalkConfig
-import ocwalk.sessions.{EnsureSession, Session, SessionId, SessionManagerRef}
+import ocwalk.conf.OcwalkConfig
+import ocwalk.processing.sessions.{EnsureSession, Session, SessionId, SessionManagerRef}
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future, Promise}

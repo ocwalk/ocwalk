@@ -1,4 +1,4 @@
-package ocwalk
+package ocwalk.processing
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
@@ -10,34 +10,25 @@ import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import ocwalk.binary._
 import ocwalk.common._
-import ocwalk.configs.OcwalkConfig
-import ocwalk.endpoints._
+import ocwalk.conf
+import ocwalk.conf.OcwalkConfig
+import ocwalk.processing.endpoints._
+import ocwalk.processing.sessions.{ForgetSession, Session, SessionManagerRef, UpdateSession}
 import ocwalk.protocol._
-import ocwalk.sessions.{ForgetSession, Session, SessionManagerRef, UpdateSession}
 import ocwalk.util.akkautil._
-import spray.json.DefaultJsonProtocol._
-import spray.json._
 
 import scala.concurrent.ExecutionContext
 
 object routes extends LazyLogging {
 
   /** Contains all of the projects configs */
-  case class FullConfig(general: OcwalkConfig = configs.Config)
-
-  implicit val fullConfigFormat: RootJsonFormat[FullConfig] = jsonFormat1(FullConfig)
+  case class FullConfig(general: OcwalkConfig = conf.Config)
 
   /** Returns general routes */
   def generalRoutes()(implicit config: OcwalkConfig, system: ActorSystem, manager: SessionManagerRef, materializer: Materializer, ec: ExecutionContext): List[Route] = List(
     /** Returns 200 OK */
     `GET /api/health` {
       complete(HttpResponse(StatusCodes.OK))
-    },
-
-    /** Returns current server configs only for admins */
-    `GET /api/config`.apply { session =>
-      import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-      complete(FullConfig())
     },
 
     /** Returns OptionUser(Some(user)) if browser session contains a valid login, or OptionUser(None) if user did not log in */
