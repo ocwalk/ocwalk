@@ -47,7 +47,7 @@ object box {
   }
 
   /** Creates an instance of button box with text label */
-  def boxButton(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ButtonBox = {
+  def button(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ButtonBox = {
     val assignedId = id
     new ButtonBox {
       override def boxContext: BoxContext = context
@@ -718,7 +718,7 @@ object box {
   trait RegionStyle {
     this: Box =>
     /** Color used as a background of this region */
-    lazy val fillColor = VisualStyleKey(Colors.Black, this)
+    lazy val fillColor = VisualStyleKey(Colors.PureBlack, this)
     /** Depth of the background fill of this region */
     lazy val fillDepth = VisualStyleKey(0.0, this)
   }
@@ -740,7 +740,7 @@ object box {
   trait TextStyle {
     this: Box =>
     /** The color of the box text */
-    lazy val textColor = VisualStyleKey(Colors.Black, this)
+    lazy val textColor = VisualStyleKey(Colors.PureBlack, this)
     /** The size of the box text in pixels */
     lazy val textSize = StyleKey(16.0, this)
     /** The font used to render box text */

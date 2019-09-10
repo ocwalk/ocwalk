@@ -146,9 +146,9 @@ moveJS := {
 
 pushJS := {
   writeFile("./out/timestamp.txt", ZonedDateTime.now(ZoneId.of("UTC")).format(ISO_ZONED_DATE_TIME))
-  copyFolder("./out", "./deploy")
+  copyFolder("./out", "../ocwalk.github.io")
   val commands = List(
-    """cd ./deploy""",
+    """cd ../ocwalk.github.io""",
     """git pull""",
     """git add .""",
     """git commit -m "js deployment"""",

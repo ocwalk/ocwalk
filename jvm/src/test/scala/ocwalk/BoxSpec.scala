@@ -250,7 +250,7 @@ class BoxSpec extends Spec {
       implicit val styler: Styler = StyleSheet(
         isContainer |>> { case container: ContainerBox => container.pad(10 xy 10) }
       )
-      val button = boxButton().textValue("Hello!")
+      val button = button().textValue("Hello!")
       val root = container().sub(button)
 
       root.layout.absBounds() shouldBe Rec2d(0 xy 0, 75 xy 45)
