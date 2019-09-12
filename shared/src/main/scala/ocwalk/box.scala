@@ -1,5 +1,7 @@
 package ocwalk
 
+import ocwalk.box.IconStyle.IconValue
+import ocwalk.box.ImageStyle.ImageReference
 import ocwalk.common._
 import ocwalk.icon.MaterialDesign
 
@@ -47,11 +49,23 @@ object box {
   }
 
   /** Creates an instance of button box with text label */
-  def button(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ButtonBox = {
+  def textButton(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): TextButtonBox = {
     val assignedId = id
-    new ButtonBox {
+    new TextButtonBox {
       override def boxContext: BoxContext = context
 
+      override val background: DrawComponent = context.drawComponent
+
+      override def id: BoxId = assignedId
+
+      override def styler: Styler = assignedStyler
+    }.bindAndRegister()
+  }
+
+  /** Creates an instance of button box with custom content */
+  def boxButton(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ContainerButtonBox = {
+    val assignedId = id
+    new ContainerButtonBox {
       override val background: DrawComponent = context.drawComponent
 
       override def id: BoxId = assignedId
@@ -94,6 +108,16 @@ object box {
   def icon(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): IconBox = {
     val assignedId = id
     new IconBox {
+      override def id: BoxId = assignedId
+
+      override def styler: Styler = assignedStyler
+    }.bindAndRegister()
+  }
+
+  /** Creates an instance of image box */
+  def image(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ImageBox = {
+    val assignedId = id
+    new ImageBox {
       override def id: BoxId = assignedId
 
       override def styler: Styler = assignedStyler
@@ -143,8 +167,11 @@ object box {
   /** Selector for text boxes */
   val isText: Selector[TextBox] = isA[TextBox]
 
-  /** Selector for buttons */
-  val isButton: Selector[ButtonBox] = isA[ButtonBox]
+  /** Selector for text buttons */
+  val isTextButton: Selector[TextButtonBox] = isA[TextButtonBox]
+
+  /** Selector for custom buttons */
+  val isBoxButton: Selector[ContainerButtonBox] = isA[ContainerButtonBox]
 
   /** Selector for horizontal boxes */
   val isHBox: Selector[HBox] = isA[HBox]
@@ -786,7 +813,7 @@ object box {
   }
 
   /** Interactive button box with text label */
-  trait ButtonBox extends RegionBox with Interactive with RegionStyle with TextStyle with ButtonStyle {
+  trait TextButtonBox extends RegionBox with Interactive with RegionStyle with TextStyle with ButtonStyle {
     def boxContext: BoxContext
 
     override def calculateMinimumWidth: Double = {
@@ -796,6 +823,10 @@ object box {
     override def calculateMinimumHeight: Double = {
       pad().y * 2 + textFont().textMetric("A", textSize())(boxContext).y
     }
+  }
+
+  /** Interactive button box with custom content */
+  trait ContainerButtonBox extends RegionBox with Interactive with RegionStyle with ButtonStyle {
   }
 
   /** Represents a style for container that puts children in a grid */
@@ -923,10 +954,16 @@ object box {
     override def calculateLayoutY(): Unit = {}
   }
 
+  implicit class IconValueOps(val value: IconValue) extends AnyVal {
+    /** Builds a box out of the icon */
+    def box(id: BoxId = BoxId())(implicit boxContext: BoxContext, styler: Styler): IconBox = icon(id).mutate(_.iconValue(value))
+  }
+
   /** Style for boxes with images */
   trait ImageStyle {
     this: Box =>
-    //    lazy val imageValue = StyleKey()
+    /** Contains a reference to an image compiled into a tileset */
+    lazy val imageRef = StyleKey(ImageStyle.EmptyImage, this)
   }
 
   object ImageStyle {
@@ -963,6 +1000,16 @@ object box {
 
     /** Refers to an image source */
     case class ImageValue(source: ImageReference, area: Rec2d)
+
+    /** Tileset that contains single empty image */
+    val EmptyTileset: Tileset = Tileset("/tileset/empty")
+    /** Reference to empty transparent image */
+    val EmptyImage: ImageReference = EmptyTileset.source("/image/empty.png").ref()
+  }
+
+  implicit class ImageRefOps(val value: ImageReference) extends AnyVal {
+    /** Builds a box out of the image reference */
+    def box(id: BoxId = BoxId())(implicit boxContext: BoxContext, styler: Styler): ImageBox = image(id).mutate(_.imageRef(value))
   }
 
   /** Style for container boxes with free positions */
@@ -979,6 +1026,17 @@ object box {
       positions(positions() + (id -> position))
       this
     }
+  }
+
+  /** Box that renders image of o static size */
+  trait ImageBox extends Box with ImageStyle {
+    override def calculateMinimumWidth: Double = imageRef().size.x
+
+    override def calculateMinimumHeight: Double = imageRef().size.y
+
+    override def calculateLayoutX(): Unit = {}
+
+    override def calculateLayoutY(): Unit = {}
   }
 
   /** Container with children positioned at freely assigned locations */

@@ -87,7 +87,7 @@ object pixibox {
       box match {
         case textBox: TextBox =>
           textBox.layout.absBounds /> { case bounds => text.positionAt(bounds.position) }
-        case buttonBox: ButtonBox =>
+        case buttonBox: TextButtonBox =>
           (buttonBox.layout.styleSize && buttonBox.layout.absBounds) /> { case (_, bounds) => text.positionAt(bounds.position + buttonBox.pad()) }
       }
       text

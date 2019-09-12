@@ -40,7 +40,7 @@ object app extends App with GlobalContext with Logging {
     implicit val controller = Controller(model)
     val future = for {
       _ <- fonts.load(roboto :: robotoSlab :: materialIcons :: Nil)
-      _ <- tilesets.load(tileset :: Nil)
+      _ <- tilesets.load(tileset :: ImageStyle.EmptyTileset :: Nil)
       _ = {
         val refreshScreenSize = () => controller.setScreenSize(window.innerWidth.toInt xy window.innerHeight.toInt)
         window.addEventListener("resize", (_: Event) => refreshScreenSize(), useCapture = false)
@@ -61,7 +61,12 @@ object app extends App with GlobalContext with Logging {
       region(dragonsId).sub(
         vbox().sub(
           text().textValue("Here be dragons..."),
-          button().onClick(controller.showKickstarter()).textValue("Visit Kickstarter")
+          boxButton().onClick(controller.showKickstarter()).sub(
+            hbox().sub(
+              // logoWhite32.box(),
+              text().textValue("Visit Kickstarter")
+            )
+          )
         )
       )
     )

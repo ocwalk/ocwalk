@@ -121,6 +121,10 @@ def moveFile(from: String, to: String): Unit = {
   new File(from).delete()
 }
 
+def fileExists(path: String): Boolean = {
+  new File(path).isFile
+}
+
 def copyFolder(from: String, to: String): Unit = {
   new File(to).mkdirs()
   Option(new File(from).listFiles())
@@ -140,8 +144,13 @@ def writeFile(file: String, content: String): Unit = {
 }
 
 moveJS := {
-  moveFile("./js/target/scala-2.12/js-fastopt.js", "./out/ocwalk-fastopt.js")
-  moveFile("./js/target/scala-2.12/js-fastopt.js.map", "./out/ocwalk-fastopt.js.map")
+  if (fileExists("./js/target/scala-2.12/js-opt.js")) {
+    moveFile("./js/target/scala-2.12/js-opt.js", "./out/ocwalk.js")
+    moveFile("./js/target/scala-2.12/js-opt.js.map", "./out/ocwalk.js.map")
+  } else {
+    moveFile("./js/target/scala-2.12/js-fastopt.js", "./out/ocwalk.js")
+    moveFile("./js/target/scala-2.12/js-fastopt.js.map", "./out/ocwalk.js.map")
+  }
 }
 
 pushJS := {

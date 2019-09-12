@@ -7,6 +7,7 @@ import java.util.Base64
 import javax.imageio.ImageIO
 import net.coobird.thumbnailator.Thumbnails
 import ocwalk.binary._
+import ocwalk.box.ImageStyle
 import ocwalk.box.ImageStyle.Tileset
 import ocwalk.common._
 import ocwalk.processing.packer
@@ -18,6 +19,7 @@ object gen extends App {
 
   println("Generating tilesets")
   genTileset(style.tileset)
+  genTileset(ImageStyle.EmptyTileset)
 
   /** Generates image tileset */
   def genTileset(tileset: Tileset): Unit = {

@@ -15,6 +15,7 @@ object style {
   val logo = tileset.source("/image/test-1.png")
   val logoBlackFull = logo.ref(color = _ => Colors.PureBlack)
   val logoPrimary32 = logo.ref(size = 32 xy 32, color = _ => primary)
+  val logoWhite32 = logo.ref(size = 32 xy 32, color = _ => Colors.PureWhite)
   val logoWhite64 = logo.ref(size = 64 xy 64, color = _ => Colors.PureWhite)
   val logoBlack64 = logo.ref(size = 64 xy 64, color = _ => Colors.PureBlack)
 
@@ -41,17 +42,22 @@ object style {
       _.textColor(Colors.PureBlack),
       _.textSize(24.0)
     ),
-    isButton && hasAbsParent(dragonsId) |> (
-      _.textFont(robotoSlab),
-      _.textColor(Colors.PureWhite),
-      _.textSize(24.0),
+    isBoxButton && hasAbsParent(dragonsId) |> (
       _.fillColor(Colors.Green500),
       _.pad(20.0 xy 20.0),
       _.cursor(Cursors.Auto)
     ),
-    isButton && Hover && hasAbsParent(dragonsId) |> (
+    isBoxButton && Hover && hasAbsParent(dragonsId) |> (
       _.fillColor(Colors.Green500.lighter),
       _.cursor(Cursors.Pointer)
-    )
+    ),
+    isHBox && hasAbsParent(isBoxButton) |> (
+      _.spacingX(10.0)
+      ),
+    isText && hasAbsParent(isBoxButton) |> (
+      _.textFont(robotoSlab),
+      _.textColor(Colors.PureWhite),
+      _.textSize(24.0),
+    ),
   )
 }

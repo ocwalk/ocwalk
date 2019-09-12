@@ -5,6 +5,7 @@ import ocwalk.common._
 import ocwalk.icon.MaterialDesign
 import ocwalk.mvc.Controller
 import ocwalk.util.logging.Logging
+import ocwalk.util.tilesets
 import org.querki.jquery._
 import org.scalajs.dom
 
@@ -64,7 +65,7 @@ object jqbox extends Logging {
       val div = divBox.attr("boxId", box.id.value)
       boxes = boxes + (box.id -> div)
       box match {
-        case button: ButtonBox =>
+        case button: TextButtonBox =>
           div.append(button.background.asInstanceOf[JqDrawComponent].draw)
           val span = spanBox
           button.layout.style /> { case any =>
@@ -87,6 +88,19 @@ object jqbox extends Logging {
           }
           div.hover(hoverIn, hoverOut)
           div.mousedown(mouseDown)
+        case button: ContainerButtonBox =>
+          div.append(button.background.asInstanceOf[JqDrawComponent].draw)
+          button.layout.style /> { case any =>
+            div.css("cursor", button.cursor().toString.toLowerCase)
+          }
+          val hoverIn: EventHandler = () => button.hovering.write(true)
+          val hoverOut: EventHandler = () => button.hovering.write(false)
+          val mouseDown: EventHandler = () => {
+            button.dragging.write(true)
+            draggedBoxes = draggedBoxes :+ button
+          }
+          div.hover(hoverIn, hoverOut)
+          div.mousedown(mouseDown)
         case region: RegionBox =>
           div.append(region.background.asInstanceOf[JqDrawComponent].draw)
         case text: TextBox =>
@@ -97,6 +111,13 @@ object jqbox extends Logging {
               .css("font-family", text.textFont().family)
               .css("font-size", text.textSize().px)
               .css("color", text.textColor().toHex)
+          }
+          text.layout.absParents /> { case parents =>
+            if (parents.exists(b => b.isInstanceOf[ButtonStyle])) {
+              span.addClass("disable-select")
+            } else {
+              span.removeClass("disable-select")
+            }
           }
           div.append(span)
         case icon: IconBox =>
@@ -118,6 +139,16 @@ object jqbox extends Logging {
               .css("color", icon.iconColor().toHex)
           }
           div.append(item)
+        case image: ImageBox =>
+          image.layout.style /> { case any =>
+            tilesets.value(image.imageRef()).foreach { value =>
+              val offset = Vec2d.Zero - value.area.position
+              div
+                .css("background-image", s"url('${image.imageRef().source.tileset.imagePath}')")
+                .css("background-repeat", "no-repeat")
+                .css("background-position", s"${offset.x.px} ${offset.y.px}")
+            }
+          }
         case other => // ignore
       }
       box.layout.relParents /> {
