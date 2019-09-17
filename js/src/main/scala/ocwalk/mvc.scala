@@ -43,4 +43,8 @@ object mvc {
                    scale: Writeable[Double] = Data(1.0),
                    mouse: Writeable[Vec2d] = Data(Vec2d.Zero))
 
+  sealed trait Route
+
+
+
 }
