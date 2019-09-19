@@ -23,6 +23,14 @@ object mvc {
     def start(path: String): Future[Unit] = Future {
       log.info(s"starting at path [$path]")
       updateTitle("OCWALK")
+      bindRedirects()
+    }
+
+    /** Listens to page changes and saves the page in history */
+    def bindRedirects(): Unit = {
+      model.page /> {
+        case page =>
+      }
     }
 
     /** Redirects to kickstarter page */
@@ -41,10 +49,16 @@ object mvc {
   case class Model(tick: Writeable[Long] = Data(0),
                    screen: Writeable[Vec2i] = Data(0 xy 0),
                    scale: Writeable[Double] = Data(1.0),
-                   mouse: Writeable[Vec2d] = Data(Vec2d.Zero))
+                   mouse: Writeable[Vec2d] = Data(Vec2d.Zero),
+                   page: Writeable[Page] = Data(router.parsePage))
 
-  sealed trait Route
+  /** The current application page */
+  sealed trait Page
 
+  /** The starting page of the application */
+  case class HomePage(foo: Option[String]) extends Page
 
+  /** The page containing a specific ocwalk project */
+  case class ProjectPage(id: String, foo: Option[String], bars: List[Int]) extends Page
 
 }

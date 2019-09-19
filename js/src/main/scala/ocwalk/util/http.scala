@@ -5,12 +5,13 @@ import java.util.Base64
 
 import ocwalk.binary._
 import ocwalk.conf.OcwalkConfig
+import ocwalk.uri.{URI => OURI}
 import ocwalk.util.logging.Logging
 import org.scalajs.dom.{XMLHttpRequest, document, window}
 
 import scala.concurrent.{Future, Promise}
+import scala.scalajs.js
 import scala.scalajs.js.URIUtils
-import scala.scalajs.js.typedarray.{ArrayBuffer, Uint8Array}
 import scala.util.Try
 
 object http extends Logging {
@@ -127,14 +128,13 @@ object http extends Logging {
 
   /** Returns the query parameter map from current URL */
   def queryParameters: Map[String, List[String]] = {
-    queryString.split('&')
-      .map(URIUtils.decodeURIComponent)
-      .map { pair =>
-        val split = pair.split('=')
-        (split.head, split.tail.mkString("="))
-      }
-      .groupBy { case (key, value) => key }
-      .map { case (key, values) => key -> values.toList.map { case (k, v) => v } }
+    val query = window.location.search
+    val queryObj = OURI.parseQuery(query)
+    queryObj.toMap.mapValues {
+      case list: js.Array[String] => list.toList
+      case null => Nil
+      case single => List(single.toString)
+    }
   }
 
   /** Returns the first value of a query parameter with given name */
