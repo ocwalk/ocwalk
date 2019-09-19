@@ -123,6 +123,9 @@ object http extends Logging {
     }
   }
 
+  /** Returns the path part of the url */
+  def pathString: String = window.location.pathname
+
   /** Returns the full query string */
   def queryString: String = Option(URI.create(window.location.href).getQuery).getOrElse("")
 

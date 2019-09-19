@@ -5,7 +5,6 @@ import ocwalk.mapping._
 import ocwalk.mvc.{HomePage, Page, ProjectPage}
 import ocwalk.util.http
 import ocwalk.util.logging.Logging
-import org.scalajs.dom.window
 
 import scala.reflect.ClassTag
 import scala.util.Try
@@ -21,12 +20,27 @@ object router extends Logging {
     * @param tag    the class reference for the page
     * @tparam A the type of page
     */
-  case class Route[A <: Page](path: String, format: MF[A], tag: Class[A])
+  case class Route[A <: Page](path: List[PathPart], format: MF[A], tag: Class[A])
+
+  /** Part of the route path between slashed */
+  trait PathPart
+
+  /** A static path part that has to be exactly matched */
+  case class ExactPathPart(value: String) extends PathPart
+
+  /** A variable path part that expands route parameters */
+  case class ParamPathPart(name: String) extends PathPart
 
   object Route {
     /** Creates route at given path */
     def apply[A <: Page](path: String, format: MF[A])(implicit tag: ClassTag[A]): Route[A] = {
-      Route(path, format, tag.runtimeClass.asInstanceOf[Class[A]])
+      Route(split(path), format, tag.runtimeClass.asInstanceOf[Class[A]])
+    }
+
+    /** Splits the string path into route parts */
+    def split(path: String): List[PathPart] = path.split("/").toList.map {
+      case param if param.startsWith("{") && param.endsWith("}") => ParamPathPart(param.drop(1).dropRight(1))
+      case exact => ExactPathPart(exact)
     }
   }
 
@@ -36,41 +50,42 @@ object router extends Logging {
     Route("/project/{id}", format3(ProjectPage))
   )
 
+  /** The defaul route to fallback to on errors */
+  val defaultRoute: Route[_] = routes.head
 
   /** Finds appropriate route by path matching and reads the page from path and query parameters */
   def parsePage: Page = {
-    val path = window.location.pathname
-    val query = window.location.search
-    log.info(s"Routing [$path] with query [$query]")
-    val defaultFormat = routes.head.format
+    val path = http.pathString
+    log.info(s"Routing [$path] with query [${http.queryString}]")
     val parts = path.split("/").toList
     val (pathMapping: Mapping, format) = routes
-      .map { route => route.path.split("/").toList -> route.format }
-      .filter { case (routeParts, _) => routeParts.size == parts.size }
-      .find { case (routeParts, _) =>
-        routeParts.zip(parts).forall {
-          case (routePart, part) if routePart.startsWith("{") && routePart.endsWith("}") => true
-          case (routePart, part) => routePart == part
+      .filter { route => route.path.size == parts.size }
+      .find { route =>
+        route.path.zip(parts).forall {
+          case (ParamPathPart(_), _) => true
+          case (ExactPathPart(exact), part) => exact == part
         }
       }
-      .map { case (routeParts, routeFormat) =>
-        val pathParams: Mapping = routeParts
+      .map { route =>
+        val pathParams: Mapping = route.path
           .zip(parts)
-          .collect {
-            case (rpart, part) if rpart.startsWith("{") && rpart.endsWith("}") => rpart.drop(1).dropRight(1) -> List(part)
-          }
+          .collect { case (ParamPathPart(name), part) => name -> List(part) }
           .toMap
-        pathParams -> routeFormat
+        pathParams -> route.format
       }
-      .getOrElse(Map.empty -> defaultFormat)
+      .getOrElse(Map.empty -> defaultRoute.format)
     val fullMapping: Mapping = http.queryParameters ++ pathMapping
-    val (page: Any, _) = Try(format.read(Nil, fullMapping)).getOrElse(defaultFormat.read(Nil, fullMapping))
+    val (page: Any, _) = Try(format.read(Nil, fullMapping)).getOrElse(defaultRoute.format.read(Nil, fullMapping))
     log.info(s"Routed to [$page]")
     page.asInstanceOf[Page]
   }
 
   /** Prints the route uri for a given page */
   def unparsePage(page: Page): String = {
+    val route = routes
+      .find(route => route.tag == page.getClass)
+      .getOrElse(defaultRoute)
+    val mapping = route.format.asInstanceOf[MF[Page]].append(Nil, page, Map.empty)
     ""
   }
 
