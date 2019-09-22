@@ -2,7 +2,7 @@ package ocwalk
 
 import ocwalk.format._
 import ocwalk.mapping._
-import ocwalk.mvc.{HomePage, Page, ProjectPage}
+import ocwalk.mvc.{HomePage, Page, ProjectPage, SpectrumPage}
 import ocwalk.util.http
 import ocwalk.util.logging.Logging
 
@@ -47,7 +47,8 @@ object router extends Logging {
   /** A routing table for all application pages */
   val routes: List[Route[_]] = List(
     Route("/", format1(HomePage)),
-    Route("/project/{id}", format3(ProjectPage))
+    Route("/project/{id}", format3(ProjectPage)),
+    Route("/spectrum", format0(SpectrumPage)),
   )
 
   /** The defaul route to fallback to on errors */

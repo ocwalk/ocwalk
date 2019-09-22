@@ -3,7 +3,7 @@ import java.nio.file.Files
 import java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME
 import java.time.{ZoneId, ZonedDateTime}
 
-import sbt.Keys.logLevel
+import sbt.Keys.{libraryDependencies, logLevel}
 import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 
 import scala.sys.process._
@@ -94,7 +94,7 @@ lazy val ocwalk = crossProject(JSPlatform, JVMPlatform)
     // dom - basic dom operations lib
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.2",
     // jquery
-    libraryDependencies += "org.querki" %%% "jquery-facade" % "1.2"
+    libraryDependencies += "org.querki" %%% "jquery-facade" % "1.2",
   )
   .dependsOn(macros)
 
@@ -103,13 +103,14 @@ lazy val ocwalkJS = ocwalk.js
 
 lazy val moveJS = taskKey[Unit]("moveJS")
 lazy val pushJS = taskKey[Unit]("pushJS")
+lazy val nodeJS = taskKey[Unit]("nodeJS")
 lazy val deployHeroku = taskKey[Unit]("deployHeroku")
 
 def copyFile(from: String, to: String): Unit = {
   val in = new File(from).toPath
   val out = new File(to)
   out.delete()
-  println(s"Copying [${in.toAbsolutePath}] to [${out.getAbsolutePath}]")
+  println(s"[ocwalk] Copying [${in.toAbsolutePath}] to [${out.getAbsolutePath}]")
   out.createNewFile()
   val stream = new FileOutputStream(out)
   Files.copy(in, stream)
@@ -143,7 +144,22 @@ def writeFile(file: String, content: String): Unit = {
   Try(writer.close())
 }
 
+def execute(commands: String*): Int = {
+  s"cmd /C ${commands.mkString(" & ")}".!
+}
+
+nodeJS := {
+  println("[ocwalk] Building node modules into script file")
+  execute(
+    """cd ./node""",
+    """npm install""",
+    """npm install --global browserify""",
+    """browserify main.js -o bundle.js"""
+  )
+}
+
 moveJS := {
+  println("[ocwalk] Moving jsvascript files to output folder")
   if (fileExists("./js/target/scala-2.12/js-opt.js")) {
     moveFile("./js/target/scala-2.12/js-opt.js", "./out/ocwalk.js")
     moveFile("./js/target/scala-2.12/js-opt.js.map", "./out/ocwalk.js.map")
@@ -151,26 +167,27 @@ moveJS := {
     moveFile("./js/target/scala-2.12/js-fastopt.js", "./out/ocwalk.js")
     moveFile("./js/target/scala-2.12/js-fastopt.js.map", "./out/ocwalk.js.map")
   }
+  moveFile("./node/bundle.js", "./out/bundle.js")
 }
 
 pushJS := {
+  println("[ocwalk] Pushing javascript output to github.io repository")
   writeFile("./out/timestamp.txt", ZonedDateTime.now(ZoneId.of("UTC")).format(ISO_ZONED_DATE_TIME))
   copyFolder("./out", "../ocwalk.github.io")
-  val commands = List(
+  execute(
     """cd ../ocwalk.github.io""",
     """git pull""",
     """git add .""",
     """git commit -m "js deployment"""",
     """git push origin master --recurse-submodules=check"""
   )
-  s"cmd /C ${commands.mkString(" & ")}".!
 }
 
 deployHeroku := {
-  val commands = List(
+  println("[ocwalk] Deploying heroku jvm container")
+  execute(
     """heroku container:login""",
     """docker push registry.heroku.com/wispy-ocwalk/web""",
     """heroku container:release web --app wispy-ocwalk"""
   )
-  s"cmd /C ${commands.mkString(" & ")}".!
 }

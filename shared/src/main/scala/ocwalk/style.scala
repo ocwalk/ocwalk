@@ -30,6 +30,8 @@ object style {
 
   val dragonsId = BoxId()
 
+  val spectrumId = BoxId()
+
   implicit val styler: Styler = StyleSheet(
     isRegion && dragonsId |> (
       _.fillColor(Colors.PureWhite)

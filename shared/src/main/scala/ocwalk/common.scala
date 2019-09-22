@@ -66,6 +66,9 @@ object common {
 
     /** Converts value to radians */
     def rad: Double = double / 180 * Math.PI
+
+    /** Calculates log of the value */
+    def log: Double = Math.log(double)
   }
 
   implicit class DoubleTupleOps(val tuple: (Double, Double)) extends AnyVal {
@@ -395,6 +398,24 @@ object common {
 
     /** Removes the value from the list */
     def without(value: A): List[A] = list.filterNot(a => a == value)
+
+    /** Returns an element after the given seq value, if exists */
+    def after(value: A): Option[A] = {
+      list.indexOf(value) match {
+        case -1 => None
+        case last if last == list.size - 1 => None
+        case index => Some(list(index + 1))
+      }
+    }
+
+    /** Returns an element before the given seq value, if exists */
+    def before(value: A): Option[A] = {
+      list.indexOf(value) match {
+        case -1 => None
+        case 0 => None
+        case index => Some(list(index - 1))
+      }
+    }
   }
 
   /** Integer 2D vector */
