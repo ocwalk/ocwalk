@@ -4,6 +4,7 @@
   "dependencies": {
     "get-user-media-promise": "1.1.4",
     "microphone-stream": "5.0.1",
-    "pitchfinder": "2.1.0"
+    "pitchfinder": "2.1.0",
+    "web-audio-daw": "4.6.0"
   }
 }

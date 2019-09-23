@@ -23,7 +23,7 @@ SBT:
 all/clean: ocwalkJVM/clean ocwalkJS/clean
 jvm/build: ocwalkJVM/clean ocwalkJVM/compile ocwalkJVM/assembly
 js/build:  ocwalkJS/clean  ocwalkJS/compile  ocwalkJS/fastOptJS nodeJS moveJS
-js/deploy: ocwalkJS/clean  ocwalkJS/compile  ocwalkJS/fastOptJS nodeJS moveJS pushJS
+js/deploy: ocwalkJS/clean  ocwalkJS/compile  ocwalkJS/fullOptJS nodeJS moveJS pushJS
 ```
 
 Server:

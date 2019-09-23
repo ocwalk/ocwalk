@@ -13,6 +13,9 @@ object model {
     }
   }
 
+  /** Returns the note with given label */
+  def note(label: String): Note = Notes.find(n => n.label == label).getOrElse(sys.error(s"Cannot find note: $label"))
+
   /** Full list of piano keys */
   val Notes: List[Note] = List(
     Note(0, 0, "C0", 16.35, 2109.89),
