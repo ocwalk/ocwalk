@@ -4,7 +4,7 @@ import ocwalk.box._
 import ocwalk.common._
 import ocwalk.conf.{JsReader, OcwalkConfig}
 import ocwalk.jqbox._
-import ocwalk.mvc.{Controller, Model, Page, SpectrumPage}
+import ocwalk.mvc.{Controller, Model, Page, PitchPage}
 import ocwalk.style._
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.http._
@@ -58,7 +58,7 @@ object app extends App with GlobalContext with Logging {
   /** Chooses which page ui to display */
   def chooseUi(controller: Controller): Future[Unit] = {
     controller.model.page() match {
-      case spectrum: SpectrumPage =>
+      case spectrum: PitchPage =>
         spectrumUi(controller)
       case other =>
         dragonUi(controller)
@@ -67,9 +67,9 @@ object app extends App with GlobalContext with Logging {
 
   /** Builds a page displaying spectrum */
   def spectrumUi(controller: Controller): Future[Unit] = Future {
-    val box = region(spectrumId).fillBoth()
+    val box = region(pitchPageId).fillBoth()
     boxContext.root.sub(box)
-    poc.spectrum.init(controller, box)
+    poc.pitch.init(controller, box)
   }
 
   /** Builds an empty "here be dragons" ui */

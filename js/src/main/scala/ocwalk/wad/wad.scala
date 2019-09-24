@@ -1,7 +1,7 @@
 package ocwalk.wad
 
 import ocwalk.model._
-import ocwalk.wad.facade.Wad
+import ocwalk.wad.facade.{Poly, Wad}
 
 import scala.concurrent.duration._
 import scala.scalajs.js
@@ -24,7 +24,7 @@ object wad {
                     loop: Boolean = false,
                     rate: Double = 1.0,
                     offset: FiniteDuration = 0.seconds,
-                    pitch: Note = note("A4"),
+                    pitch: Note = parseNote("A4"),
                     detune: Int = 0)
 
   /** Describes the source stream for the wad
@@ -54,4 +54,10 @@ object wad {
     pitch = config.pitch.label,
     detune = config.detune
   ))
+
+  /** Creates a poly wad */
+  def poly(): Poly = new Poly()
+
+  /** Returns true if mic consent has been received */
+  def micConsent: Boolean = Wad.micConsent
 }

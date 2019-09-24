@@ -29,8 +29,10 @@ object style {
   val materialIcons = Font("Material Icons")
 
   val dragonsId = BoxId()
+  val noteId = BoxId()
+  val pitchId = BoxId()
 
-  val spectrumId = BoxId()
+  val pitchPageId = BoxId()
 
   implicit val styler: Styler = StyleSheet(
     isRegion && dragonsId |> (
@@ -61,5 +63,22 @@ object style {
       _.textColor(Colors.PureWhite),
       _.textSize(24.0),
     ),
+
+    isRegion && pitchPageId |> (
+      _.fillColor(Colors.PureWhite)
+      ),
+    isText && hasAbsParent(pitchPageId) |> (
+      _.textFont(robotoSlab),
+      _.textColor(Colors.PureBlack)
+    ),
+    isVBox && hasAbsParent(pitchPageId) |> (
+      _.spacingY(10.0)
+      ),
+    isText && noteId |> (
+      _.textSize(144.0)
+      ),
+    isText && pitchId |> (
+      _.textSize(24.0)
+      )
   )
 }
