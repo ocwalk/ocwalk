@@ -35,50 +35,52 @@ object style {
   val pitchPageId = BoxId()
 
   implicit val styler: Styler = StyleSheet(
-    isRegion && dragonsId |> (
-      _.fillColor(Colors.PureWhite)
+    under(dragonsId).sub(
+      isRegion |> (
+        _.fillColor(Colors.PureWhite)
+        ),
+      isVBox |> (
+        _.spacingY(20.0),
+        ),
+      isText |> (
+        _.textFont(robotoSlab),
+        _.textColor(Colors.PureBlack),
+        _.textSize(24.0),
       ),
-    isVBox && hasAbsParent(dragonsId) |> (
-      _.spacingY(20.0)
+      isText && hasAbsParent(isTextButton) |> (
+        _.textFont(robotoSlab),
+        _.textColor(Colors.PureWhite),
+        _.textSize(24.0),
       ),
-    isText && hasAbsParent(dragonsId) |> (
-      _.textFont(robotoSlab),
-      _.textColor(Colors.PureBlack),
-      _.textSize(24.0)
-    ),
-    isBoxButton && hasAbsParent(dragonsId) |> (
-      _.fillColor(Colors.Green500),
-      _.pad(20.0 xy 20.0),
-      _.cursor(Cursors.Auto)
-    ),
-    isBoxButton && Hover && hasAbsParent(dragonsId) |> (
-      _.fillColor(Colors.Green500.lighter),
-      _.cursor(Cursors.Pointer)
-    ),
-    isHBox && hasAbsParent(isBoxButton) |> (
-      _.spacingX(10.0)
+      isTextButton |> (
+        _.fillX(),
+        _.fillColor(Colors.Green500),
+        _.pad(20.0 xy 20.0),
+        _.cursor(Cursors.Auto),
       ),
-    isText && hasAbsParent(isBoxButton) |> (
-      _.textFont(robotoSlab),
-      _.textColor(Colors.PureWhite),
-      _.textSize(24.0),
+      isTextButton && Hover |> (
+        _.fillColor(Colors.Green500.lighter),
+        _.cursor(Cursors.Pointer)
+      ),
     ),
 
-    isRegion && pitchPageId |> (
-      _.fillColor(Colors.PureWhite)
+    under(pitchPageId).sub(
+      isRegion |> (
+        _.fillColor(Colors.PureWhite)
+        ),
+      isText |> (
+        _.textFont(robotoSlab),
+        _.textColor(Colors.PureBlack)
       ),
-    isText && hasAbsParent(pitchPageId) |> (
-      _.textFont(robotoSlab),
-      _.textColor(Colors.PureBlack)
-    ),
-    isVBox && hasAbsParent(pitchPageId) |> (
-      _.spacingY(10.0)
-      ),
-    isText && noteId |> (
-      _.textSize(144.0)
-      ),
-    isText && pitchId |> (
-      _.textSize(24.0)
-      )
+      isVBox |> (
+        _.spacingY(10.0)
+        ),
+      isText && noteId |> (
+        _.textSize(144.0)
+        ),
+      isText && pitchId |> (
+        _.textSize(24.0)
+        )
+    )
   )
 }

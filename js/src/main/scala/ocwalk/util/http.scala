@@ -3,14 +3,13 @@ package ocwalk.util
 import java.net.URI
 import java.util.Base64
 
+import lib.uri
 import ocwalk.binary._
 import ocwalk.conf.OcwalkConfig
-import ocwalk.uri.{URI => OURI}
 import ocwalk.util.logging.Logging
 import org.scalajs.dom.{XMLHttpRequest, document, window}
 
 import scala.concurrent.{Future, Promise}
-import scala.scalajs.js
 import scala.scalajs.js.URIUtils
 import scala.util.Try
 
@@ -48,12 +47,8 @@ object http extends Logging {
   }
 
   /** Redirects to given url without reloading the page */
-  def redirectSilent(path: String, preserveQuery: Boolean = true): Unit = {
-    val fullPath = if (preserveQuery) {
-      val query = queryString
-      if (query.isEmpty) path else s"$path?$query"
-    } else path
-    window.history.pushState(scalajs.js.Object(), "", fullPath)
+  def redirectSilent(path: String): Unit = {
+    window.history.pushState(scalajs.js.Object(), "", path)
   }
 
   /** Updates the page title */
@@ -126,19 +121,17 @@ object http extends Logging {
   /** Returns the path part of the url */
   def pathString: String = window.location.pathname
 
+  /** Returns the path part with appended query string */
+  def routeString: String = s"$pathString$queryString"
+
+  /** Returns the current full uri */
+  def fullUri: String = window.location.href
+
   /** Returns the full query string */
-  def queryString: String = Option(URI.create(window.location.href).getQuery).getOrElse("")
+  def queryString: String = window.location.search
 
   /** Returns the query parameter map from current URL */
-  def queryParameters: Map[String, List[String]] = {
-    val query = window.location.search
-    val queryObj = OURI.parseQuery(query)
-    queryObj.toMap.mapValues {
-      case list: js.Array[String] => list.toList
-      case null => Nil
-      case single => List(single.toString)
-    }
-  }
+  def queryParameters: Map[String, List[String]] = uri.parseQuery(window.location.search)
 
   /** Returns the first value of a query parameter with given name */
   def queryParameter(name: String): Option[String] = {

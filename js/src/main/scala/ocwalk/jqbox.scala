@@ -65,29 +65,6 @@ object jqbox extends Logging {
       val div = divBox.attr("boxId", box.id.value)
       boxes = boxes + (box.id -> div)
       box match {
-        case button: TextButtonBox =>
-          div.append(button.background.asInstanceOf[JqDrawComponent].draw)
-          val span = spanBox
-          button.layout.style /> { case any =>
-            span
-              .text(button.textValue())
-              .css("font-family", button.textFont().family)
-              .css("font-size", button.textSize().px)
-              .css("color", button.textColor().toHex)
-              .css("left", (button.pad().x + button.childOffset().x).px)
-              .css("top", (button.pad().y + button.childOffset().y).px)
-              .addClass("disable-select")
-            div.css("cursor", button.cursor().toString.toLowerCase)
-          }
-          div.append(span)
-          val hoverIn: EventHandler = () => button.hovering.write(true)
-          val hoverOut: EventHandler = () => button.hovering.write(false)
-          val mouseDown: EventHandler = () => {
-            button.dragging.write(true)
-            draggedBoxes = draggedBoxes :+ button
-          }
-          div.hover(hoverIn, hoverOut)
-          div.mousedown(mouseDown)
         case button: ContainerButtonBox =>
           div.append(button.background.asInstanceOf[JqDrawComponent].draw)
           button.layout.style /> { case any =>

@@ -5,7 +5,7 @@ import java.util.UUID
 import ocwalk.common._
 import ocwalk.mvc.Controller
 import ocwalk.ops._
-import ocwalk.pixi.DisplayObject
+import lib.facade.pixi.DisplayObject
 import ocwalk.util.global.GlobalContext
 
 import scala.concurrent.duration._

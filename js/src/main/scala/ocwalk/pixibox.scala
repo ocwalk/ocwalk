@@ -3,7 +3,7 @@ package ocwalk
 import ocwalk.box._
 import ocwalk.common._
 import ocwalk.ops._
-import ocwalk.pixi.{TextStyle => _, _}
+import lib.facade.pixi.{TextStyle => _, _}
 
 object pixibox {
   /** The pixi container corresponding to box root */
@@ -15,7 +15,7 @@ object pixibox {
 
     /** Measures the space occupied by the text */
     override def measureText(text: String, font: Font, size: Double): Vec2d = {
-      val style = new pixi.TextStyle
+      val style = new lib.facade.pixi.TextStyle
       style.fontSize = size
       style.fontFamily = font.family
       val metrics = TextMetrics.measureText(text, style, wordWrap = false)
@@ -78,7 +78,7 @@ object pixibox {
       graphics
     },
     { case box: TextStyle =>
-      val style = new pixi.TextStyle
+      val style = new lib.facade.pixi.TextStyle
       box.layout.style /> { case _ =>
         style.fontSize = box.textSize()
         style.fontFamily = box.textFont().family

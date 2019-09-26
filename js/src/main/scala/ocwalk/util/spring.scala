@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import ocwalk.common._
 import ocwalk.mvc.Controller
 import ocwalk.ops._
-import ocwalk.pixi._
+import lib.facade.pixi._
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.logging.Logging
 

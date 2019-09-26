@@ -4,7 +4,7 @@ import java.util.UUID
 
 import ocwalk.common._
 import ocwalk.mvc.Controller
-import ocwalk.pixi._
+import lib.facade.pixi._
 import ocwalk.util.animation.{Animation, ChaseInOut, Delay, FadeIn, FadeOut, FlipIn, FlipOut, OffsetIn, OffsetOut, Parallel}
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.logging.Logging

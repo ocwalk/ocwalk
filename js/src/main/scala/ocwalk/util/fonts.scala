@@ -1,8 +1,8 @@
 package ocwalk.util
 
+import lib.ffo
 import ocwalk.box.Font
 import ocwalk.common._
-import ocwalk.ffo.FontFaceObserver
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.logging.Logging
 
@@ -21,7 +21,7 @@ object fonts extends GlobalContext with Logging {
   def load(font: Font): Future[Unit] = (for {
     _ <- UnitFuture
     _ = log.info(s"loading font [$font]")
-    _ <- new FontFaceObserver(font.family).load().toFuture
+    _ <- ffo.load(font)
     _ = log.info(s"font successfully loaded [$font]")
   } yield ()).whenFailed(up => log.error(s"failed to load [$font]", up))
 }

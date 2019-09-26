@@ -48,22 +48,8 @@ object box {
     }.bindAndRegister()
   }
 
-  /** Creates an instance of button box with text label */
-  def textButton(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): TextButtonBox = {
-    val assignedId = id
-    new TextButtonBox {
-      override def boxContext: BoxContext = context
-
-      override val background: DrawComponent = context.drawComponent
-
-      override def id: BoxId = assignedId
-
-      override def styler: Styler = assignedStyler
-    }.bindAndRegister()
-  }
-
   /** Creates an instance of button box with custom content */
-  def boxButton(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ContainerButtonBox = {
+  def button(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ContainerButtonBox = {
     val assignedId = id
     new ContainerButtonBox {
       override val background: DrawComponent = context.drawComponent
@@ -72,6 +58,22 @@ object box {
 
       override def styler: Styler = assignedStyler
     }.bindAndRegister()
+  }
+
+  /** Creates an instance of button box with text label */
+  def textButton(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): TextButtonBox = {
+    val assignedId = id
+    val delegate = text()
+    val button = new TextButtonBox {
+      override val text: TextBox = delegate
+
+      override val background: DrawComponent = context.drawComponent
+
+      override def id: BoxId = assignedId
+
+      override def styler: Styler = assignedStyler
+    }.bindAndRegister()
+    button.sub(delegate)
   }
 
   /** Creates an instance of grid box container */
@@ -158,6 +160,12 @@ object box {
   /** Converts box class to selector */
   implicit def classSelector(clazz: BoxClass): Selector[Box] = hasClass(clazz)
 
+  /** Selects any box that is or within the box with given id */
+  def under(id: BoxId): Selector[Box] = {
+    val selector: Selector[_] = id
+    box => selector.appliesTo(box) || box.layout.absParents().exists(selector.appliesTo)
+  }
+
   /** Selector for container boxes */
   val isContainer: Selector[ContainerBox] = isA[ContainerBox]
 
@@ -171,7 +179,7 @@ object box {
   val isTextButton: Selector[TextButtonBox] = isA[TextButtonBox]
 
   /** Selector for custom buttons */
-  val isBoxButton: Selector[ContainerButtonBox] = isA[ContainerButtonBox]
+  val isButton: Selector[ContainerButtonBox] = isA[ContainerButtonBox]
 
   /** Selector for horizontal boxes */
   val isHBox: Selector[HBox] = isA[HBox]
@@ -393,11 +401,20 @@ object box {
       case s => OrSelector((s :: other :: Nil).asInstanceOf[List[Selector[A]]])
     }
 
+    /** Flips the selector scope */
+    def not: Selector[A] = this match {
+      case NotSelector(original) => original.asInstanceOf[Selector[A]]
+      case s => NotSelector(s)
+    }
+
     /** Converts selector into styler */
     def |>(modifiers: (A => Unit)*): Styler = Styler.apply(this) { case a => modifiers.foreach(m => m.apply(a)) }
 
     /** Converts selector into styler */
     def |>>(code: PartialFunction[A, Unit]): Styler = Styler.apply(this)(code)
+
+    /** Groups sub styles together */
+    def sub(stylers: Styler*): Styler = Styler.apply(this) { case a => stylers.foreach(s => s.lift.apply(a)) }
   }
 
   /** Combines a list of selectors as a grouped AND selector */
@@ -408,6 +425,11 @@ object box {
   /** Combines a list of selectors as a grouped OR selector */
   case class OrSelector[A <: Box](delegates: List[Selector[_ <: A]]) extends Selector[A] {
     override def appliesTo(box: Box): Boolean = delegates.exists(s => s.appliesTo(box))
+  }
+
+  /** Flips the selector */
+  case class NotSelector[A <: Box](delegate: Selector[_ <: A]) extends Selector[A] {
+    override def appliesTo(box: Box): Boolean = !delegate.appliesTo(box)
   }
 
   /** Configures the style of the box */
@@ -774,6 +796,8 @@ object box {
     lazy val textFont = StyleKey(DefaultFont, this)
     /** The value of the text */
     lazy val textValue = StyleKey("", this)
+    /** The alignment of the text inside of the box */
+    lazy val textAlign = VisualStyleKey(Vec2d.Center, this)
   }
 
   /** Refers to a text font with cached metrics */
@@ -813,16 +837,8 @@ object box {
   }
 
   /** Interactive button box with text label */
-  trait TextButtonBox extends RegionBox with Interactive with RegionStyle with TextStyle with ButtonStyle {
-    def boxContext: BoxContext
-
-    override def calculateMinimumWidth: Double = {
-      pad().x * 2 + textFont().textMetric(textValue(), textSize())(boxContext).x
-    }
-
-    override def calculateMinimumHeight: Double = {
-      pad().y * 2 + textFont().textMetric("A", textSize())(boxContext).y
-    }
+  trait TextButtonBox extends ContainerButtonBox {
+    val text: TextBox
   }
 
   /** Interactive button box with custom content */

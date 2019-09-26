@@ -2,7 +2,9 @@ package ocwalk
 
 import ocwalk.common._
 import ocwalk.model.Note
+import ocwalk.page.layout
 import ocwalk.util.global.GlobalContext
+import ocwalk.util.http
 import ocwalk.util.http._
 import ocwalk.util.logging.Logging
 import ocwalk.util.timer.Timer
@@ -37,6 +39,7 @@ object mvc {
       log.info(s"starting at path [$path]")
       updateTitle("OCWALK")
       bindRedirects()
+      layout.start(this)
       timer.start(60, () => model.tick.write(model.tick() + 1))
       log.info(s"started")
     }
@@ -45,6 +48,8 @@ object mvc {
     def bindRedirects(): Unit = {
       model.page /> {
         case page =>
+          val target = router.unparsePage(page)
+          if (target != http.routeString) http.redirectSilent(target)
       }
     }
 
@@ -56,6 +61,11 @@ object mvc {
     /** Redirects to join discord page */
     def showDiscord(): Unit = {
       redirectFull("https://discord.gg/FJ7r34W")
+    }
+
+    /** Redirect to given page within ocwalk */
+    def showPage(page: Page): Unit = {
+      model.page.write(page)
     }
   }
 
@@ -74,10 +84,10 @@ object mvc {
                    screen: Writeable[Vec2i] = Data(0 xy 0),
                    scale: Writeable[Double] = Data(1.0),
                    mouse: Writeable[Vec2d] = Data(Vec2d.Zero),
-                   page: Writeable[Page] = Data(router.parsePage),
-                   pitch: Writeable[Option[Double]] = Data(None),
-                   detection: Writeable[Option[Detection]] = Data(None),
-                   micEnabled: Writeable[Option[Boolean]] = Data(None))
+                   page: Writeable[Page] = LazyData(router.parsePage),
+                   pitch: Writeable[Option[Double]] = LazyData(None),
+                   detection: Writeable[Option[Detection]] = LazyData(None),
+                   micEnabled: Writeable[Option[Boolean]] = LazyData(None))
 
   /** The current application page */
   sealed trait Page
