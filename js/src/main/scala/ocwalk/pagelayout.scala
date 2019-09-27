@@ -1,17 +1,12 @@
-package ocwalk.page
+package ocwalk
 
-import lib.facade.wad.{Poly, Wad}
-import lib.wad
 import ocwalk.box._
 import ocwalk.common._
 import ocwalk.mvc._
 import ocwalk.router.Route
 import ocwalk.style._
-import ocwalk.{jqbox, router}
 
-import scala.util.Try
-
-object layout {
+object pagelayout {
 
   /** Wraps the page layout */
   trait PageLayout[A <: Page] {
@@ -83,73 +78,39 @@ object layout {
   /** Pitch page demo layout */
   object PitchLayout extends JqBoxLayout[PitchPage] {
     private implicit val listenerId: ListenerId = ListenerId()
-    private val voice: Writeable[Option[Wad]] = Data(None)
-    private val tuner: Writeable[Option[Poly]] = Data(None)
 
     override def open(controller: Controller): Box = {
       val box = region(pitchPageId)
       val noteText = text(noteId)
       val pitchText = text(pitchId)
+      val centsText = text(centsId)
+      val volumeText = text(inputVolumeId)
       box.sub(
-        vbox().sub(noteText, pitchText)
+        vbox().sub(noteText, pitchText, centsText)
       )
 
-      voice /> {
-        case Some(v) =>
-          val tuner = wad.poly()
-          tuner.setVolume(0)
-          tuner.add(v)
-          tuner.updatePitch()
-          this.tuner.write(Some(tuner))
+      controller.model.inputVolume /> {
+        case level => volumeText.textValue(s"Volume: ${(level * 100).pretty(digits = 0)}%")
       }
 
       controller.model.detection /> {
-        case Some(Detection(note, pitch, error)) =>
+        case Some(Detection(note, pitch, cents)) =>
           noteText.textValue(note.label)
           pitchText.textValue(s"Pitch: ${pitch.pretty(digits = 0)}")
+          centsText.textValue(s"Error: ${cents.pretty(digits = 0)}¢")
         case None =>
           noteText.textValue("N/A")
           pitchText.textValue("Pitch: N/A")
+          centsText.textValue("Error: N/A")
       }
 
-      (controller.model.tick && controller.model.micEnabled) /> {
-        case (tick, None) if wad.micConsent => controller.setMicEnabled(true)
-      }
-
-      (controller.model.micEnabled && tuner) /> {
-        case (Some(true), Some(t)) => t.play()
-      }
-
-      (controller.model.tick && tuner) /> {
-        case (tick, Some(t)) =>
-          val detection = for {
-            _ <- Some()
-            pitch <- t.pitch.toOption
-            noteLabel <- t.noteName.toOption
-            note <- Try(ocwalk.model.parseNote(noteLabel)).toOption
-          } yield Detection(note, pitch, 0.0)
-          controller.setDetection(detection)
-      }
-
-      voice.write(Some(wad.apply(wad.Config(source = wad.Mic))))
+      detection.start(controller)
       box
     }
 
     override def close(controller: Controller): Unit = {
-      tuner().foreach { w =>
-        w.stopUpdatingPitch()
-        w.stop()
-        tuner.write(None)
-      }
-      voice().foreach { w =>
-        w.stop()
-        voice.write(None)
-      }
       controller.model.detection.forget()
-      controller.model.tick.forget()
-      controller.model.micEnabled.forget()
-      voice.forget()
-      tuner.forget()
+      detection.stop(controller)
     }
   }
 

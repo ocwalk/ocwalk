@@ -1,10 +1,11 @@
 package ocwalk
 
+import lib.history
 import lib.uri._
 import ocwalk.format._
 import ocwalk.mapping._
-import ocwalk.mvc.{HomePage, Page, PitchPage, ProjectPage}
-import ocwalk.page.layout._
+import ocwalk.mvc._
+import ocwalk.pagelayout._
 import ocwalk.util.http
 import ocwalk.util.logging.Logging
 
@@ -106,6 +107,17 @@ object router extends Logging {
       }
       .mkString("/")
     uri(path).appendQuery(queryParams).toString
+  }
+
+  /** Listens to browser history events to switch to another page, redirects to new pages when model changes */
+  def start(controller: Controller): Unit = {
+    controller.model.page /> {
+      case page =>
+        val target = unparsePage(page)
+        if (target != http.routeString) http.redirectSilent(target)
+    }
+
+    history.start(location => controller.showPage(parsePage))
   }
 
 }

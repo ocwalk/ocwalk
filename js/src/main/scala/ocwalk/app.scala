@@ -1,5 +1,6 @@
 package ocwalk
 
+import lib.history
 import ocwalk.box._
 import ocwalk.common._
 import ocwalk.conf.{JsReader, OcwalkConfig}
@@ -22,7 +23,7 @@ object app extends App with GlobalContext with Logging {
   config.setGlobalReader(JsReader)
   implicit val conf: OcwalkConfig = ocwalk.conf.Config
 
-  window.location.pathname match {
+  history.location.pathname match {
     case discord if discord.startsWith("/discord") =>
       queryParameter("code") match {
         case Some(code) => loginDiscord(code)
@@ -37,7 +38,7 @@ object app extends App with GlobalContext with Logging {
   /** Launches the application */
   def startOcwalk(path: String): Unit = {
     val model = Model()
-    implicit val controller = Controller(model)
+    implicit val controller = Controller(model, conf)
     val future = for {
       _ <- fonts.load(roboto :: robotoSlab :: materialIcons :: Nil)
       _ <- tilesets.load(tileset :: ImageStyle.EmptyTileset :: Nil)

@@ -3,7 +3,7 @@ package ocwalk.util
 import java.net.URI
 import java.util.Base64
 
-import lib.uri
+import lib.{history, uri}
 import ocwalk.binary._
 import ocwalk.conf.OcwalkConfig
 import ocwalk.util.logging.Logging
@@ -48,7 +48,7 @@ object http extends Logging {
 
   /** Redirects to given url without reloading the page */
   def redirectSilent(path: String): Unit = {
-    window.history.pushState(scalajs.js.Object(), "", path)
+    history.push(path)
   }
 
   /** Updates the page title */
@@ -119,19 +119,16 @@ object http extends Logging {
   }
 
   /** Returns the path part of the url */
-  def pathString: String = window.location.pathname
+  def pathString: String = history.location.pathname
 
   /** Returns the path part with appended query string */
   def routeString: String = s"$pathString$queryString"
 
-  /** Returns the current full uri */
-  def fullUri: String = window.location.href
-
   /** Returns the full query string */
-  def queryString: String = window.location.search
+  def queryString: String = history.location.search
 
   /** Returns the query parameter map from current URL */
-  def queryParameters: Map[String, List[String]] = uri.parseQuery(window.location.search)
+  def queryParameters: Map[String, List[String]] = uri.parseQuery(history.location.search)
 
   /** Returns the first value of a query parameter with given name */
   def queryParameter(name: String): Option[String] = {

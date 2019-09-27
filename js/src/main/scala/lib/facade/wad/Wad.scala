@@ -1,5 +1,7 @@
 package lib.facade.wad
 
+import org.scalajs.dom.raw.AudioContext
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
 
@@ -21,6 +23,9 @@ class Wad extends js.Object {
 
   /** Turns off the playback of the wad */
   def stop(): Wad = js.native
+
+  /** The raw audio context for the wad */
+  val audioContext: AudioContext = js.native
 }
 
 object Wad extends js.Object {

@@ -31,6 +31,8 @@ object style {
   val dragonsId = BoxId()
   val noteId = BoxId()
   val pitchId = BoxId()
+  val centsId = BoxId()
+  val inputVolumeId = BoxId()
 
   val pitchPageId = BoxId()
 
@@ -78,9 +80,9 @@ object style {
       isText && noteId |> (
         _.textSize(144.0)
         ),
-      isText && pitchId |> (
+      isText && (pitchId || centsId || inputVolumeId) |> (
         _.textSize(24.0)
-        )
+        ),
     )
   )
 }
