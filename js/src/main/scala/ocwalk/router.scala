@@ -5,7 +5,8 @@ import lib.uri._
 import ocwalk.format._
 import ocwalk.mapping._
 import ocwalk.mvc._
-import ocwalk.pagelayout._
+import ocwalk.pages.pages._
+import ocwalk.pages._
 import ocwalk.util.http
 import ocwalk.util.logging.Logging
 

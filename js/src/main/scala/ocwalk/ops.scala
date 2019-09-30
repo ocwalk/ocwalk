@@ -2,9 +2,9 @@ package ocwalk
 
 import java.util.UUID
 
+import lib.facade.pixi._
 import ocwalk.common._
 import ocwalk.mvc.Controller
-import lib.facade.pixi._
 import ocwalk.util.animation.{Animation, ChaseInOut, Delay, FadeIn, FadeOut, FlipIn, FlipOut, OffsetIn, OffsetOut, Parallel}
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.logging.Logging
@@ -224,51 +224,6 @@ object ops extends GlobalContext with Logging {
   implicit class AnimationListOps(val list: List[Animation]) extends AnyVal {
     /** Executes animations in parallel */
     def parallel: Animation = Parallel(list)
-  }
-
-  implicit class GraphicsOps(val graphics: Graphics) extends AnyVal {
-    /** Draws a rectangle with given size */
-    def fillRect(size: Vec2d, position: Vec2d = Vec2d.Zero, color: Color = Colors.PureBlack): Graphics = {
-      val (x, y, w, h) = (position.x, position.y, size.x, size.y)
-      graphics
-        .beginFill(color.toDouble)
-        .moveTo(x, y)
-        .lineTo(x + w, y)
-        .lineTo(x + w, y + h)
-        .lineTo(x, y + h)
-        .lineTo(x, y)
-        .endFill()
-    }
-
-    /** Draws a rectangle with rounded corners */
-    def fillRoundRect(size: Vec2d, radius: Double, color: Color = Colors.PureBlack): Graphics = {
-      val (w, h, r) = (size.x, size.y, radius)
-      graphics
-        .beginFill(color.toDouble)
-        .moveTo(r, 0)
-        .lineTo(w - r, 0).quadraticCurveTo(w, 0, w, r)
-        .lineTo(w, h - r).quadraticCurveTo(w, h, w - r, h)
-        .lineTo(r, h).quadraticCurveTo(0, h, 0, h - r)
-        .lineTo(0, r).quadraticCurveTo(0, 0, r, 0)
-        .endFill()
-    }
-
-    /** Draws a rectangle with cut corners */
-    def fillCutRect(size: Vec2d, cut: Double, color: Color = Colors.PureBlack): Graphics = {
-      val (w, h, c) = (size.x, size.y, cut)
-      graphics
-        .beginFill(color.toDouble)
-        .moveTo(c, 0)
-        .lineTo(w - c, 0)
-        .lineTo(w, c)
-        .lineTo(w, h - c)
-        .lineTo(w - c, h)
-        .lineTo(c, h)
-        .lineTo(0, h - c)
-        .lineTo(0, c)
-        .lineTo(c, 0)
-        .endFill()
-    }
   }
 
 }

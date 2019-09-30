@@ -4,6 +4,7 @@ import ocwalk.box._
 import ocwalk.common._
 import ocwalk.ops._
 import lib.facade.pixi.{TextStyle => _, _}
+import lib.pixi._
 
 object pixibox {
   /** The pixi container corresponding to box root */
@@ -12,6 +13,9 @@ object pixibox {
   implicit val boxContext: BoxContext = new BoxContext {
     /** Creates a new component with draw functionality */
     override def drawComponent: DrawComponent = new PixiDrawComponent
+
+    /** Creates a new canvas for the context */
+    override def canvasComponent: Any = sys.error("unsupported")
 
     /** Measures the space occupied by the text */
     override def measureText(text: String, font: Font, size: Double): Vec2d = {

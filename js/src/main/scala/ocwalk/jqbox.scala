@@ -8,6 +8,7 @@ import ocwalk.util.logging.Logging
 import ocwalk.util.tilesets
 import org.querki.jquery._
 import org.scalajs.dom
+import org.scalajs.dom.raw.HTMLCanvasElement
 
 object jqbox extends Logging {
   override protected def logKey: String = "jqbox"
@@ -30,6 +31,9 @@ object jqbox extends Logging {
   /** Creates new jq i box */
   def itemBox: JQuery = $("<i>").addClass("box")
 
+  /** Creates new jq canvas box */
+  def canvasBox: JQuery = $("<canvas>").addClass("box")
+
   /** Listens to screen size and rescales the root */
   def scaleToScreen(controller: Controller): Unit = {
     controller.model.screen /> { case size =>
@@ -50,6 +54,9 @@ object jqbox extends Logging {
 
     /** Creates a new component with draw functionality */
     override def drawComponent: DrawComponent = new JqDrawComponent
+
+    /** Creates a new canvas for the context */
+    override def canvasComponent: Any = canvasBox.get(0).get
 
     /** Measures the space occupied by the text */
     override def measureText(text: String, font: Font, size: Double): Vec2d = {
@@ -126,6 +133,15 @@ object jqbox extends Logging {
                 .css("background-position", s"${offset.x.px} ${offset.y.px}")
             }
           }
+        case drawing: DrawingBox =>
+          val canvas = drawing.canvas.asInstanceOf[HTMLCanvasElement]
+          canvas.id = drawing.canvasId.toString
+          drawing.layout.relBounds /> {
+            case bounds =>
+              canvas.width = bounds.size.x.toInt max 1
+              canvas.height = bounds.size.y.toInt max 1
+          }
+          div.append(canvas)
         case other => // ignore
       }
       box.layout.relParents /> {
@@ -133,11 +149,12 @@ object jqbox extends Logging {
         case parent :: xs => div.appendTo(boxes(parent.id))
       }
       box.layout.relBounds /> {
-        case bounds => div
-          .css("left", bounds.position.x.px)
-          .css("top", bounds.position.y.px)
-          .width(bounds.size.x)
-          .height(bounds.size.y)
+        case bounds =>
+          div
+            .css("left", bounds.position.x.px)
+            .css("top", bounds.position.y.px)
+            .width(bounds.size.x)
+            .height(bounds.size.y)
       }
     }
 

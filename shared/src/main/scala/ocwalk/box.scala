@@ -136,6 +136,18 @@ object box {
     }.bindAndRegister()
   }
 
+  /** Creates a box with drawing canvas */
+  def canvas(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): DrawingBox = {
+    val assignedId = id
+    new DrawingBox {
+      override def id: BoxId = assignedId
+
+      override def styler: Styler = assignedStyler
+
+      override def canvas: Any = context.canvasComponent
+    }.bindAndRegister()
+  }
+
   /** Selects any box */
   val anyBox: Selector[Box] = _ => true
 
@@ -689,6 +701,9 @@ object box {
     /** Creates a new component with draw functionality */
     def drawComponent: DrawComponent
 
+    /** Creates a new canvas for the context */
+    def canvasComponent: Any
+
     /** Measures the space occupied by the text */
     def measureText(text: String, font: Font, size: Double): Vec2d
 
@@ -1082,6 +1097,15 @@ object box {
         child.updateAreaY(pos, layout.relBounds().size.y - pos)
       }
     }
+  }
+
+  /** Represents a box with canvas inside */
+  trait DrawingBox extends ContainerBox {
+    /** Returns the drawing canvas of the box */
+    def canvas: Any
+
+    /** Returns the id of the delegating canvas element */
+    val canvasId: BoxId = BoxId()
   }
 
   object Stretcher {
