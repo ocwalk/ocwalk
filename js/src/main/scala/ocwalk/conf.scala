@@ -26,6 +26,7 @@ object conf extends Logging {
     * @param inputVolumeThreshold the lowest microphone level when the detection will assume user is playing instrument
     * @param fftSmoothing         the amount of smoothing to be applied to fft calculations
     * @param fftBinCount          the sample buffer size for FFT analysis
+    * @param pitchModelPath       the root path to machine learning model files
     */
   case class OcwalkConfig(server: String,
                           client: String,
@@ -33,7 +34,8 @@ object conf extends Logging {
                           logs: LogConfig,
                           inputVolumeThreshold: Double,
                           fftSmoothing: Double,
-                          fftBinCount: Int)
+                          fftBinCount: Int,
+                          pitchModelPath: String)
 
   /** Configures logging on different levels */
   case class LogConfig(wire: Boolean,
@@ -49,11 +51,12 @@ object conf extends Logging {
     logs = LogConfig(wire = false, debug = false, info = true, warnings = true, errors = true),
     inputVolumeThreshold = 0.1,
     fftSmoothing = 0.8,
-    fftBinCount = 2 * 1024
+    fftBinCount = 2 * 1024,
+    pitchModelPath = "/crepe/"
   )
 
   implicit val logConfigFormat: CF[LogConfig] = format5(LogConfig)
-  implicit val ocwalkConfigFormat: CF[OcwalkConfig] = format7(OcwalkConfig)
+  implicit val ocwalkConfigFormat: CF[OcwalkConfig] = format8(OcwalkConfig)
 
   lazy val Config: OcwalkConfig = configureNamespace("ocwalk", Some(DefaultConfig))
 

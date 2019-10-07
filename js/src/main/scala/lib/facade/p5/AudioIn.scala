@@ -1,5 +1,7 @@
 package lib.facade.p5
 
+import org.scalajs.dom.experimental.mediastream.MediaStream
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
 
@@ -17,16 +19,18 @@ class AudioIn extends js.Object {
   /** Client must allow browser to access their microphone / audioin source. Default: false. Will become true when the client enables access. */
   val enabled: Boolean = js.native
 
+  /** Returns the microphone stream reference */
+  val stream: MediaStream = js.native
+
   /** Start processing audio input.
     * This enables the use of other AudioIn methods like getLevel().
     * Note that by default, AudioIn is not connected to p5.sound's output.
     * So you won't hear anything unless you use the connect() method.
     *
-    * @param errorCallback certain browsers limit access to the user's microphone.
-    *                      For example, Chrome only allows access from localhost and over https.
-    *                      For this reason, you may want to include an errorCallback - a function that is called in case the browser won't provide mic access.
+    * @param successCallback name of a function to call on success
+    * @param errorCallback   name of a function to call if there was an error; for example, some browsers do not support getUserMedia
     */
-  def start(errorCallback: js.Function0[Unit] = js.native): Unit = js.native
+  def start(successCallback: js.Function0[Unit] = js.native, errorCallback: js.Function0[Unit] = js.native): Unit = js.native
 
   /** Turn the AudioIn off.
     * If the AudioIn is stopped, it cannot getLevel().
