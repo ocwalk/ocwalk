@@ -14,8 +14,8 @@ object pixibox {
     /** Creates a new component with draw functionality */
     override def drawComponent: DrawComponent = new PixiDrawComponent
 
-    /** Creates a new canvas for the context */
-    override def canvasComponent: Any = sys.error("unsupported")
+    /** Registers the drawing canvas on the page */
+    override def registerCanvas(box: DrawingBox, canvas: Any): Unit = sys.error("unsupported")
 
     /** Measures the space occupied by the text */
     override def measureText(text: String, font: Font, size: Double): Vec2d = {

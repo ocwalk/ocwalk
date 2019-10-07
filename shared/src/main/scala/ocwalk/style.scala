@@ -29,11 +29,11 @@ object style {
   val materialIcons = Font("Material Icons")
 
   val dragonsId = BoxId()
-  val noteId = BoxId()
-  val pitchId = BoxId()
-  val pitchPixiId = BoxId()
 
   val pitchPageId = BoxId()
+  val pitchNoteId = BoxId()
+  val pitchParamClass = BoxClass()
+  val pitchSpectrumId = BoxId()
 
   implicit val styler: Styler = StyleSheet(
     under(dragonsId).sub(
@@ -76,15 +76,20 @@ object style {
       isVBox |> (
         _.spacingY(10.0)
         ),
-      isText && noteId |> (
-        _.textSize(144.0)
+      isHBox |> (
+        _.spacingX(10.0),
+        _.pad(10.0 xy 0.0)
+      ),
+      isText && pitchNoteId |> (
+        _.textSize(72.0)
         ),
-      isText && pitchId |> (
-        _.textSize(24.0)
-        ),
-      isContainer && pitchPixiId |> (
-        _.fixedW(300),
-        _.fixedH(100)
+      isText && pitchParamClass |> (
+        _.textSize(24.0),
+        _.align(Vec2d.Left)
+      ),
+      isContainer && pitchSpectrumId |> (
+        _.fixedW(320),
+        _.fixedH(350)
       )
     )
   )

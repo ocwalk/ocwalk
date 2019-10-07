@@ -5,13 +5,14 @@ import ocwalk.box._
 import ocwalk.common._
 import ocwalk.conf.{JsReader, OcwalkConfig}
 import ocwalk.jqbox._
-import ocwalk.mvc.{Controller, Model}
+import ocwalk.mvc._
 import ocwalk.style._
+import ocwalk.util._
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.http._
 import ocwalk.util.logging.Logging
-import ocwalk.util.{animation, fonts, spring, tilesets}
 import org.scalajs.dom._
+import org.querki.jquery._
 
 import scala.concurrent.Future
 
@@ -23,22 +24,24 @@ object app extends App with GlobalContext with Logging {
   config.setGlobalReader(JsReader)
   implicit val conf: OcwalkConfig = ocwalk.conf.Config
 
-  history.location.pathname match {
-    case discord if discord.startsWith("/discord") =>
-      queryParameter("code") match {
-        case Some(code) => loginDiscord(code)
-        case None =>
-          log.warn("login error, redirecting to [/]")
-          redirect("/")
-      }
-    case path =>
-      startOcwalk(path)
+  $ { () =>
+    history.location.pathname match {
+      case discord if discord.startsWith("/discord") =>
+        queryParameter("code") match {
+          case Some(code) => loginDiscord(code)
+          case None =>
+            log.warn("login error, redirecting to [/]")
+            redirect("/")
+        }
+      case path =>
+        startOcwalk(path)
+    }
   }
 
   /** Launches the application */
   def startOcwalk(path: String): Unit = {
     val model = Model()
-    implicit val controller = Controller(model, conf)
+    val controller = Controller(model, conf)
     val future = for {
       _ <- fonts.load(roboto :: robotoSlab :: materialIcons :: Nil)
       _ <- tilesets.load(tileset :: ImageStyle.EmptyTileset :: Nil)
@@ -48,8 +51,8 @@ object app extends App with GlobalContext with Logging {
         refreshScreenSize()
         scaleToScreen(controller)
       }
-      _ <- spring.load()
-      _ <- animation.load()
+      _ <- spring.load()(controller)
+      _ <- animation.load()(controller)
       _ <- controller.start(path)
     } yield ()
     future.whenFailed(up => log.error("failed to build ui", up))

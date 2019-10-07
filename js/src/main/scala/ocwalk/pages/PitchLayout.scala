@@ -1,7 +1,6 @@
 package ocwalk.pages
 
-import lib.facade.pixi.{Graphics, Sprite, Texture}
-import lib.pixi
+import lib.facade.pixi.Graphics
 import lib.pixi._
 import ocwalk.box._
 import ocwalk.common._
@@ -9,7 +8,6 @@ import ocwalk.mvc._
 import ocwalk.pages.pages.JqBoxLayout
 import ocwalk.style._
 import ocwalk.util.global.GlobalContext
-import org.scalajs.dom
 
 /** Pitch page demo layout */
 object PitchLayout extends JqBoxLayout[PitchPage] with GlobalContext {
@@ -17,37 +15,50 @@ object PitchLayout extends JqBoxLayout[PitchPage] with GlobalContext {
 
   override def open(controller: Controller): Box = {
     val box = region(pitchPageId)
-    val noteText = text(noteId)
-    val pitchText = text(pitchId)
-    val drawBox = canvas(pitchPixiId)
+    val noteText = text(pitchNoteId)
+    val pitchText = text().addClass(pitchParamClass)
+    val volumeText = text().addClass(pitchParamClass)
+    val errorText = text().addClass(pitchParamClass)
+    val spectrum = drawBox(pitchSpectrumId)
     box.sub(
-      vbox().sub(noteText, pitchText, drawBox)
+      vbox().sub(
+        spectrum,
+        hbox().fillBoth().sub(
+          vbox().fillBoth().sub(
+            pitchText,
+            volumeText,
+            errorText
+          ),
+          noteText.fillBoth()
+        )
+      )
     )
 
-    val app = create(drawBox)
-    dom.window.console.log(app)
-    dom.window.console.log(app.view)
+    val app = create(spectrum)
     val graphics = new Graphics
     app.stage.addChild(graphics)
-    val texture = Texture.from("/image/test-2.png")
-    val sprite = new Sprite(texture)
-    app.stage.addChild(sprite)
 
     controller.model.frame /> { case _ =>
       graphics.clear()
       val pad = 10
-      val size = drawBox.layout.relBounds().size
+      val size = spectrum.layout.relBounds().size
       val volume = controller.model.inputVolume()
       graphics.fillRect(size = (volume * (size.x - pad * 2)) xy 10, position = pad xy pad)
     }
 
+    controller.model.inputVolume /> { case volume =>
+      volumeText.textValue(s"Volume: ${(volume * 100).pretty(0)}%")
+    }
+
     controller.model.detection /> {
-      case Some(Detection(note, pitch, _)) =>
+      case Some(Detection(note, pitch, error)) =>
         noteText.textValue(note.label)
-        pitchText.textValue(s"Pitch: ${pitch.pretty(digits = 0)}")
+        pitchText.textValue(s"Pitch: ${pitch.pretty()}")
+        errorText.textValue(s"Error: ${error.pretty(digits = 0)}¢")
       case None =>
         noteText.textValue("N/A")
         pitchText.textValue("Pitch: N/A")
+        errorText.textValue(s"Error: N/A")
     }
     box
   }

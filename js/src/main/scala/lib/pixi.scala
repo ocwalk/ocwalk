@@ -5,6 +5,7 @@ import ocwalk.box._
 import ocwalk.common.{Color, Colors, Vec2d}
 import ocwalk.util.logging.Logging
 import org.querki.jquery._
+import org.scalajs.dom.raw.HTMLCanvasElement
 
 import scala.scalajs.js
 
@@ -15,21 +16,18 @@ object pixi extends Logging {
 
   /** Creates pixi application contained in given drawing box */
   def create(box: DrawingBox): Application = {
-    log.info(s"query [#${box.canvasId}]")
-    val canvas = $(s"#${box.canvasId}").first().get
-
     val app = new Application(js.Dynamic.literal(
       width = box.layout.relBounds().size.x.toInt max 1,
       height = box.layout.relBounds().size.y.toInt max 1,
-      view = canvas,
       antialias = true,
-      backgroundColor = 0,
-      resolution = 1
-      //transparent = true
+      resolution = 1,
+      transparent = true
     ))
+    val canvas = app.view.asInstanceOf[HTMLCanvasElement]
     box.layout.relBounds /> {
       case bounds => app.renderer.resize(bounds.size.x max 1, bounds.size.y max 1)
     }
+    box.registerCanvas(canvas)
     app
   }
 

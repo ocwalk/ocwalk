@@ -137,14 +137,14 @@ object box {
   }
 
   /** Creates a box with drawing canvas */
-  def canvas(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): DrawingBox = {
+  def drawBox(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): DrawingBox = {
     val assignedId = id
     new DrawingBox {
       override def id: BoxId = assignedId
 
       override def styler: Styler = assignedStyler
 
-      override def canvas: Any = context.canvasComponent
+      override def registerCanvas(canvas: Any): Unit = context.registerCanvas(this, canvas)
     }.bindAndRegister()
   }
 
@@ -329,6 +329,12 @@ object box {
     /** Sets the fixed height of the component */
     def fixedH(height: Double): this.type = {
       boxLayout.fixedH.write(Some(height))
+      this
+    }
+
+    /** Sets the alignment of the box */
+    def align(alignment: Vec2d): this.type = {
+      boxLayout.align.write(alignment)
       this
     }
 
@@ -701,14 +707,14 @@ object box {
     /** Creates a new component with draw functionality */
     def drawComponent: DrawComponent
 
-    /** Creates a new canvas for the context */
-    def canvasComponent: Any
-
     /** Measures the space occupied by the text */
     def measureText(text: String, font: Font, size: Double): Vec2d
 
     /** Registers the box within the context */
     def register(box: Box): Unit
+
+    /** Registers the drawing canvas on the page */
+    def registerCanvas(box: DrawingBox, canvas: Any): Unit
 
     /** Returns the very root box that matches screen size */
     def root: Box
@@ -811,8 +817,6 @@ object box {
     lazy val textFont = StyleKey(DefaultFont, this)
     /** The value of the text */
     lazy val textValue = StyleKey("", this)
-    /** The alignment of the text inside of the box */
-    lazy val textAlign = VisualStyleKey(Vec2d.Center, this)
   }
 
   /** Refers to a text font with cached metrics */
@@ -911,17 +915,19 @@ object box {
     }
 
     override def calculateMinimumWidth: Double = {
-      val width = childrenColumns
+      val cols = childrenColumns
+      val width = cols
         .map(col => col.map(c => c.layout.minW()).maxOr(0.0))
         .sum
-      width + pad().x * 2 + (columns() - 1) * spacing().x
+      width + pad().x * 2 + (cols.size - 1) * spacing().x
     }
 
     override def calculateMinimumHeight: Double = {
-      val height = childrenRows
+      val rows = childrenRows
+      val height = rows
         .map(row => row.map(c => c.layout.minH()).maxOr(0.0))
         .sum
-      height + pad().y * 2 + (columns() - 1) * spacing().y
+      height + pad().y * 2 + (rows.size - 1) * spacing().y
     }
   }
 
@@ -1101,11 +1107,8 @@ object box {
 
   /** Represents a box with canvas inside */
   trait DrawingBox extends ContainerBox {
-    /** Returns the drawing canvas of the box */
-    def canvas: Any
-
-    /** Returns the id of the delegating canvas element */
-    val canvasId: BoxId = BoxId()
+    /** Registers the drawing canvas on the page once it's ready */
+    def registerCanvas(canvas: Any): Unit
   }
 
   object Stretcher {

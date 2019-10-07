@@ -19,7 +19,7 @@ class BoxSpec extends Spec {
   trait NotDrawable extends BoxContext {
     override def drawComponent: DrawComponent = ???
 
-    override def canvasComponent: Any = ???
+    override def registerCanvas(box: DrawingBox, canvas: Any): Unit = ???
   }
 
   /** Represents a context without root */
@@ -35,7 +35,7 @@ class BoxSpec extends Spec {
       override def fill(area: Rec2d, color: Color, depth: Double): Unit = {}
     }
 
-    override def canvasComponent: Any = ???
+    override def registerCanvas(box: DrawingBox, canvas: Any): Unit = ???
   }
 
   /** Represents a context that ignores box registering */

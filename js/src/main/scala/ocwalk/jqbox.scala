@@ -55,9 +55,6 @@ object jqbox extends Logging {
     /** Creates a new component with draw functionality */
     override def drawComponent: DrawComponent = new JqDrawComponent
 
-    /** Creates a new canvas for the context */
-    override def canvasComponent: Any = canvasBox.get(0).get
-
     /** Measures the space occupied by the text */
     override def measureText(text: String, font: Font, size: Double): Vec2d = {
       measurer
@@ -133,15 +130,6 @@ object jqbox extends Logging {
                 .css("background-position", s"${offset.x.px} ${offset.y.px}")
             }
           }
-        case drawing: DrawingBox =>
-          val canvas = drawing.canvas.asInstanceOf[HTMLCanvasElement]
-          canvas.id = drawing.canvasId.toString
-          drawing.layout.relBounds /> {
-            case bounds =>
-              canvas.width = bounds.size.x.toInt max 1
-              canvas.height = bounds.size.y.toInt max 1
-          }
-          div.append(canvas)
         case other => // ignore
       }
       box.layout.relParents /> {
@@ -156,6 +144,12 @@ object jqbox extends Logging {
             .width(bounds.size.x)
             .height(bounds.size.y)
       }
+    }
+
+    /** Registers the drawing canvas on the page */
+    override def registerCanvas(box: DrawingBox, canvas: Any): Unit = canvas match {
+      case element: HTMLCanvasElement =>
+        boxes(box.id).append(element)
     }
 
     /** Returns the very root box that matches screen size */
