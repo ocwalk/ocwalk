@@ -5,6 +5,7 @@ import lib.facade.p5.AudioIn
 import lib.ml5._
 import lib.{ml5, p5}
 import ocwalk.common._
+import ocwalk.model._
 import ocwalk.mvc._
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.logging.Logging
@@ -33,9 +34,12 @@ object detection extends GlobalContext with Logging {
       _ = log.info("loading pitch detection model")
       pitch <- ml5.pitchDetection(controller.config.pitchModelPath, voice)
       _ = log.info("starting pitch detection")
-      _ = pitch.register({ frequency =>
-        val result = Detection(model.Notes.head, frequency.getOrElse(-1.0), -1.0)
-        controller.setDetection(Some(result))
+      _ = pitch.register({ frequencyOpt =>
+        controller.setDetection(frequencyOpt.map { frequency =>
+          val note = calculateNote(frequency)
+          val error = calculateCents(frequency, note.frequency)
+          Detection(note, frequency, error)
+        })
       })
     } yield {
       voiceData.write(Some(voice))
@@ -43,9 +47,6 @@ object detection extends GlobalContext with Logging {
       log.info("started")
     }).whenFailed(up => log.error("failed to start detection", up))
   }
-
-  /** Returns the distance between frequencies in cents http://hyperphysics.phy-astr.gsu.edu/hbase/Music/cents.html */
-  def calculateCents(current: Double, target: Double): Double = 1200 * (current / target).log / 2.log
 
   /** Stops the pitch detection */
   def stop(controller: Controller): Unit = {

@@ -25,7 +25,7 @@ object wad {
                     loop: Boolean = false,
                     rate: Double = 1.0,
                     offset: FiniteDuration = 0.seconds,
-                    pitch: Note = parseNote("A4"),
+                    pitch: Note = A4,
                     detune: Int = 0)
 
   /** Describes the source stream for the wad

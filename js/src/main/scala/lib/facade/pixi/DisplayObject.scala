@@ -38,6 +38,7 @@ class DisplayObject extends js.Object {
   var hitArea: Rectangle = js.native
 
   var filters: js.Array[Filter] = js.native
+  var tint: Double = js.native
 
   def getGlobalPosition(): Point = js.native
 

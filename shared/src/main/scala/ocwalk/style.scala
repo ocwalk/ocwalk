@@ -8,13 +8,14 @@ import ocwalk.common._
 /** Ocwalk application style */
 //noinspection TypeAnnotation
 object style {
-  val primary = Colors.Green500
+  val primaryColor = Colors.Green500
+  val errorColor = Colors.Red500
 
   val tileset = Tileset("/tileset/ocwalk")
 
   val logo = tileset.source("/image/test-1.png")
   val logoBlackFull = logo.ref(color = _ => Colors.PureBlack)
-  val logoPrimary32 = logo.ref(size = 32 xy 32, color = _ => primary)
+  val logoPrimary32 = logo.ref(size = 32 xy 32, color = _ => primaryColor)
   val logoWhite32 = logo.ref(size = 32 xy 32, color = _ => Colors.PureWhite)
   val logoWhite64 = logo.ref(size = 64 xy 64, color = _ => Colors.PureWhite)
   val logoBlack64 = logo.ref(size = 64 xy 64, color = _ => Colors.PureBlack)
@@ -89,7 +90,7 @@ object style {
       ),
       isContainer && pitchSpectrumId |> (
         _.fixedW(320),
-        _.fixedH(350)
+        _.fixedH(348)
       )
     )
   )

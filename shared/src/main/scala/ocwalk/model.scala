@@ -1,130 +1,45 @@
 package ocwalk
 
+import ocwalk.common._
+
 object model {
+  /** Note labels within octave */
+  private val OctaveNotes = Array("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+  /** White note offsets within octave */
+  private val OctaveWhites = Array(0, 2, 4, 5, 7, 9, 11)
+  /** Used in frequency calculations */
+  private val TwoRootTwelve = Math.pow(2, 1 / 12.0)
+  /** A4 vote with 440 frequency */
+  val A4 = Note(octave = 4, offset = 9)
 
   /** Describes a music unit with name and frequency */
-  case class Note(octave: Int, offset: Int, label: String, frequency: Double, wavelength: Double) {
-    /** Returns midi code for the note */
-    def midi: Int = (octave + 1) * 12 + offset
+  case class Note(octave: Int, offset: Int) {
+    /** Human readable note label */
+    lazy val label: String = s"${OctaveNotes(offset)}$octave"
 
-    /** Returns true if the note represents a white key on piano */
-    def white: Boolean = {
-      offset == 0 || offset == 2 || offset == 4 || offset == 5 || offset == 7 || offset == 9 || offset == 11
-    }
+    /** Midi code for the note */
+    lazy val midi: Int = (octave + 1) * 12 + offset
+
+    /** True if the note represents a white key on piano */
+    lazy val white: Boolean = OctaveWhites.contains(offset)
+
+    /** The note frequency from https://pages.mtu.edu/~suits/NoteFreqCalcs.html */
+    lazy val frequency: Double = 440.0 * Math.pow(TwoRootTwelve, midi - A4.midi)
+
+    override def toString: String = label
   }
 
-  /** Returns the note with given label */
-  def parseNote(label: String): Note = Notes.find(n => n.label == label).getOrElse(sys.error(s"Cannot find note: $label"))
+  /** Returns the distance between frequencies in cents http://hyperphysics.phy-astr.gsu.edu/hbase/Music/cents.html */
+  def calculateCents(current: Double, target: Double): Double = 1200 * (current / target).log / 2.log
 
-  /** Full list of piano keys */
-  val Notes: List[Note] = List(
-    Note(0, 0, "C0", 16.35, 2109.89),
-    Note(0, 1, "C#0", 17.32, 1991.47),
-    Note(0, 2, "D0", 18.35, 1879.69),
-    Note(0, 3, "D#0", 19.45, 1774.2),
-    Note(0, 4, "E0", 20.6, 1674.62),
-    Note(0, 5, "F0", 21.83, 1580.63),
-    Note(0, 6, "F#0", 23.12, 1491.91),
-    Note(0, 7, "G0", 24.5, 1408.18),
-    Note(0, 8, "G#0", 25.96, 1329.14),
-    Note(0, 9, "A0", 27.5, 1254.55),
-    Note(0, 10, "A#0", 29.14, 1184.13),
-    Note(0, 11, "B0", 30.87, 1117.67),
-    Note(1, 0, "C1", 32.7, 1054.94),
-    Note(1, 1, "C#1", 34.65, 995.73),
-    Note(1, 2, "D1", 36.71, 939.85),
-    Note(1, 3, "D#1", 38.89, 887.1),
-    Note(1, 4, "E1", 41.2, 837.31),
-    Note(1, 5, "F1", 43.65, 790.31),
-    Note(1, 6, "F#1", 46.25, 745.96),
-    Note(1, 7, "G1", 49, 704.09),
-    Note(1, 8, "G#1", 51.91, 664.57),
-    Note(1, 9, "A1", 55, 627.27),
-    Note(1, 10, "A#1", 58.27, 592.07),
-    Note(1, 11, "B1", 61.74, 558.84),
-    Note(2, 0, "C2", 65.41, 527.47),
-    Note(2, 1, "C#2", 69.3, 497.87),
-    Note(2, 2, "D2", 73.42, 469.92),
-    Note(2, 3, "D#2", 77.78, 443.55),
-    Note(2, 4, "E2", 82.41, 418.65),
-    Note(2, 5, "F2", 87.31, 395.16),
-    Note(2, 6, "F#2", 92.5, 372.98),
-    Note(2, 7, "G2", 98, 352.04),
-    Note(2, 8, "G#2", 103.83, 332.29),
-    Note(2, 9, "A2", 110, 313.64),
-    Note(2, 10, "A#2", 116.54, 296.03),
-    Note(2, 11, "B2", 123.47, 279.42),
-    Note(3, 0, "C3", 130.81, 263.74),
-    Note(3, 1, "C#3", 138.59, 248.93),
-    Note(3, 2, "D3", 146.83, 234.96),
-    Note(3, 3, "D#3", 155.56, 221.77),
-    Note(3, 4, "E3", 164.81, 209.33),
-    Note(3, 5, "F3", 174.61, 197.58),
-    Note(3, 6, "F#3", 185, 186.49),
-    Note(3, 7, "G3", 196, 176.02),
-    Note(3, 8, "G#3", 207.65, 166.14),
-    Note(3, 9, "A3", 220, 156.82),
-    Note(3, 10, "A#3", 233.08, 148.02),
-    Note(3, 11, "B3", 246.94, 139.71),
-    Note(4, 0, "C4", 261.63, 131.87),
-    Note(4, 1, "C#4", 277.18, 124.47),
-    Note(4, 2, "D4", 293.66, 117.48),
-    Note(4, 3, "D#4", 311.13, 110.89),
-    Note(4, 4, "E4", 329.63, 104.66),
-    Note(4, 5, "F4", 349.23, 98.79),
-    Note(4, 6, "F#4", 369.99, 93.24),
-    Note(4, 7, "G4", 392, 88.01),
-    Note(4, 8, "G#4", 415.3, 83.07),
-    Note(4, 9, "A4", 440, 78.41),
-    Note(4, 10, "A#4", 466.16, 74.01),
-    Note(4, 11, "B4", 493.88, 69.85),
-    Note(5, 0, "C5", 523.25, 65.93),
-    Note(5, 1, "C#5", 554.37, 62.23),
-    Note(5, 2, "D5", 587.33, 58.74),
-    Note(5, 3, "D#5", 622.25, 55.44),
-    Note(5, 4, "E5", 659.25, 52.33),
-    Note(5, 5, "F5", 698.46, 49.39),
-    Note(5, 6, "F#5", 739.99, 46.62),
-    Note(5, 7, "G5", 783.99, 44.01),
-    Note(5, 8, "G#5", 830.61, 41.54),
-    Note(5, 9, "A5", 880, 39.2),
-    Note(5, 10, "A#5", 932.33, 37),
-    Note(5, 11, "B5", 987.77, 34.93),
-    Note(6, 0, "C6", 1046.5, 32.97),
-    Note(6, 1, "C#6", 1108.73, 31.12),
-    Note(6, 2, "D6", 1174.66, 29.37),
-    Note(6, 3, "D#6", 1244.51, 27.72),
-    Note(6, 4, "E6", 1318.51, 26.17),
-    Note(6, 5, "F6", 1396.91, 24.7),
-    Note(6, 6, "F#6", 1479.98, 23.31),
-    Note(6, 7, "G6", 1567.98, 22),
-    Note(6, 8, "G#6", 1661.22, 20.77),
-    Note(6, 9, "A6", 1760, 19.6),
-    Note(6, 10, "A#6", 1864.66, 18.5),
-    Note(6, 11, "B6", 1975.53, 17.46),
-    Note(7, 0, "C7", 2093, 16.48),
-    Note(7, 1, "C#7", 2217.46, 15.56),
-    Note(7, 2, "D7", 2349.32, 14.69),
-    Note(7, 3, "D#7", 2489.02, 13.86),
-    Note(7, 4, "E7", 2637.02, 13.08),
-    Note(7, 5, "F7", 2793.83, 12.35),
-    Note(7, 6, "F#7", 2959.96, 11.66),
-    Note(7, 7, "G7", 3135.96, 11),
-    Note(7, 8, "G#7", 3322.44, 10.38),
-    Note(7, 9, "A7", 3520, 9.8),
-    Note(7, 10, "A#7", 3729.31, 9.25),
-    Note(7, 11, "B7", 3951.07, 8.73),
-    Note(8, 0, "C8", 4186.01, 8.24),
-    Note(8, 1, "C#8", 4434.92, 7.78),
-    Note(8, 2, "D8", 4698.63, 7.34),
-    Note(8, 3, "D#8", 4978.03, 6.93),
-    Note(8, 4, "E8", 5274.04, 6.54),
-    Note(8, 5, "F8", 5587.65, 6.17),
-    Note(8, 6, "F#8", 5919.91, 5.83),
-    Note(8, 7, "G8", 6271.93, 5.5),
-    Note(8, 8, "G#8", 6644.88, 5.19),
-    Note(8, 9, "A8", 7040, 4.9),
-    Note(8, 10, "A#8", 7458.62, 4.63),
-    Note(8, 11, "B8", 7902.13, 4.37f)
-  )
+  /** Returns closest note to a given frequency */
+  def calculateNote(frequency: Double): Note = {
+    val distance = calculateCents(frequency, 440.0).toInt
+    val distanceAbs = distance.abs
+    val offset = (distanceAbs / 100 + (if (distanceAbs % 100 < 50) 0 else 1)) * distance.signum
+    val octave = 5 + ((offset - 3) / 12.0).floor.toInt
+    val octaveOffset = ((offset - 3) % 12 + 12) % 12
+    Note(octave, octaveOffset)
+  }
+
 }

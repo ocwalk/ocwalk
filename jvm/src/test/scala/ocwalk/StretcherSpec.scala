@@ -12,11 +12,11 @@ class StretcherSpec extends Spec {
   implicit val context: BoxContext = new BoxContext {
     override def drawComponent: DrawComponent = ???
 
-    override def canvasComponent: Any = ???
-
     override def measureText(text: String, font: Font, size: Double): Vec2d = Vec2d.Zero
 
     override def register(box: Box): Unit = {}
+
+    override def registerCanvas(box: DrawingBox, canvas: Any): Unit = {}
 
     override def root: Box = ???
   }
