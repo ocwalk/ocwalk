@@ -30,7 +30,7 @@ object detection extends GlobalContext with Logging {
     (for {
       _ <- UnitFuture
       _ = log.info("connecting microphone")
-      voice <- p5.audioIn()
+      voice <- p5.audioIn(controller)
       _ = log.info("loading pitch detection model")
       pitch <- ml5.pitchDetection(controller.config.pitchModelPath, voice)
       _ = log.info("starting pitch detection")

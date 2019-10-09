@@ -1,7 +1,10 @@
 package lib
 
 import lib.facade.p5.AudioIn
+import ocwalk.common.ListenerId
+import ocwalk.mvc.Controller
 import ocwalk.util.global.GlobalContext
+import ocwalk.util.logging.Logging
 import org.scalajs.dom.raw.AudioContext
 
 import scala.concurrent.{Future, Promise}
@@ -11,16 +14,32 @@ import scala.concurrent.{Future, Promise}
   *
   * https://p5js.org/
   */
-object p5 extends GlobalContext {
+object p5 extends GlobalContext with Logging {
+  override protected def logKey: String = "p5"
+
   /** Creates microphone input */
-  def audioIn(): Future[AudioIn] = {
+  def audioIn(controller: Controller): Future[AudioIn] = {
     val promise = Promise[AudioIn]()
     ec.execute(() => {
-      val mic = new AudioIn({ () => promise.tryFailure(new IllegalStateException("Failed to create AudioIn")) })
+      implicit val listenerId: ListenerId = ListenerId()
+      val mic = new AudioIn({ () =>
+        log.warn("AudioIn constructor error called")
+        promise.tryFailure(new IllegalStateException("Failed to create AudioIn"))
+      })
       mic.start(
-        successCallback = { () => promise.trySuccess(mic) },
-        errorCallback = { () => promise.tryFailure(new IllegalStateException("Failed to start AudioIn")) }
+        successCallback = { () => log.info("AudioIn start success called") },
+        errorCallback = { () =>
+          log.warn("AudioIn start error called")
+          promise.tryFailure(new IllegalStateException("Failed to start AudioIn"))
+        }
       )
+      controller.model.tick /> { case _ =>
+        if (mic.enabled) {
+          log.info("AudioIn microphone prompt accepted")
+          controller.model.tick.forget()
+          promise.trySuccess(mic)
+        }
+      }
     })
     promise.future
   }
