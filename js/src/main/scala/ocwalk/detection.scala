@@ -29,6 +29,7 @@ object detection extends GlobalContext with Logging {
   def start(controller: Controller): Unit = if (voiceData().isEmpty) {
     (for {
       _ <- UnitFuture
+      _ = controller.model.detector.loading
       _ = log.info("connecting microphone")
       voice <- p5.audioIn(controller)
       _ = log.info("loading pitch detection model")
@@ -45,7 +46,11 @@ object detection extends GlobalContext with Logging {
       voiceData.write(Some(voice))
       pitchData.write(Some(pitch))
       log.info("started")
-    }).whenFailed(up => log.error("failed to start detection", up))
+      controller.model.detector.loaded()
+    }).whenFailed { up =>
+      log.error("failed to start detection", up)
+      controller.model.detector.failed(up.getMessage)
+    }
   }
 
   /** Stops the pitch detection */
@@ -60,5 +65,6 @@ object detection extends GlobalContext with Logging {
     controller.model.tick.forget()
     voiceData.forget()
     pitchData.forget()
+    controller.model.detector.reset
   }
 }

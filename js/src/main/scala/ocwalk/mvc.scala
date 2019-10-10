@@ -51,6 +51,11 @@ object mvc {
       log.info("bound")
     }
 
+    /** Starts the pitch detection on user request */
+    def startDetection(): Unit = {
+      detection.start(this)
+    }
+
     /** Redirects to kickstarter page */
     def showKickstarter(): Unit = {
       http.redirectFull("https://www.kickstarter.com/projects/owispyo/ocwalk")
@@ -76,6 +81,7 @@ object mvc {
     * @param mouse       current mouse coordinates
     * @param page        currently displayed ocwalk page
     * @param inputVolume the current volume level from microphone
+    * @param detector    transition indicating whether or not the pitch detection is loaded
     * @param detection   the description of detected note
     */
   case class Model(tick: Writeable[Long] = Data(0),
@@ -85,6 +91,7 @@ object mvc {
                    mouse: Writeable[Vec2d] = Data(Vec2d.Zero),
                    page: Writeable[Page] = LazyData(router.parsePage),
                    inputVolume: Writeable[Double] = LazyData(0.0),
+                   detector: Writeable[Transition[Unit]] = Data(Transition.Missing()),
                    detection: Writeable[Option[Detection]] = LazyData(None))
 
   /** The current application page */

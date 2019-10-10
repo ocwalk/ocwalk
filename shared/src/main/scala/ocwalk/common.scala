@@ -1,7 +1,10 @@
 package ocwalk
 
+import java.lang.System.currentTimeMillis
 import java.time.OffsetDateTime
 import java.util.UUID
+
+import ocwalk.common.Transition.{Failed, Loaded, Loading, Missing}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -758,6 +761,113 @@ object common {
     /** Returns the lighter version of this color */
     def lighter: Color = color match {
       case other => other.tint(Colors.PureWhite, 0.3)
+    }
+  }
+
+  /** Describes value that is eventually loaded */
+  sealed trait Transition[A] {
+    /** Returns Some(value) when successfully loaded */
+    def valueOpt: Option[A]
+  }
+
+  object Transition {
+
+    /** Describes value that was not requested yet */
+    case class Missing[A]() extends Transition[A] {
+      override def valueOpt: Option[A] = None
+    }
+
+    /** Describes value that is being loaded right now */
+    case class Loading[A](start: Long) extends Transition[A] {
+      override def valueOpt: Option[A] = None
+    }
+
+    /** Describes value that was successfully loaded */
+    case class Loaded[A](start: Long, end: Long, value: A) extends Transition[A] {
+      override def valueOpt: Option[A] = Some(value)
+    }
+
+    /** Describes value that failed to load */
+    case class Failed[A](start: Long, end: Long, reason: String) extends Transition[A] {
+      override def valueOpt: Option[A] = None
+    }
+
+  }
+
+  implicit class TransitionWritableOps[A](val transition: Writeable[Transition[A]]) extends AnyVal {
+    /** Puts transition into loading state */
+    def loading: Writeable[Transition[A]] = {
+      transition() match {
+        case Missing() =>
+          transition.write(Loading(currentTimeMillis))
+        case loading: Loading[A] =>
+          transition.write(loading)
+        case loaded: Loaded[A] =>
+          transition.write(loaded)
+        case failed: Failed[A] =>
+          transition.write(Loading(currentTimeMillis))
+      }
+      transition
+    }
+
+    /** Puts transition into loaded state */
+    def loaded(value: A): Writeable[Transition[A]] = {
+      transition() match {
+        case Missing() =>
+          transition.write(Loaded(currentTimeMillis, currentTimeMillis, value))
+        case Loading(start) =>
+          transition.write(Loaded(start, currentTimeMillis, value))
+        case loaded: Loaded[A] =>
+          transition.write(loaded.copy(end = currentTimeMillis, value = value))
+        case failed: Failed[A] =>
+          transition.write(Loaded(currentTimeMillis, currentTimeMillis, value))
+      }
+      transition
+    }
+
+    /** Puts transition into failed state */
+    def failed(reason: String): Writeable[Transition[A]] = {
+      transition() match {
+        case Missing() =>
+          transition.write(Failed(currentTimeMillis, currentTimeMillis, reason))
+        case Loading(start) =>
+          transition.write(Failed(start, currentTimeMillis, reason))
+        case loaded: Loaded[A] =>
+          transition.write(Failed(currentTimeMillis, currentTimeMillis, reason))
+        case failed: Failed[A] =>
+          transition.write(Failed(currentTimeMillis, currentTimeMillis, reason))
+      }
+      transition
+    }
+
+    /** Resets the transition to missing state */
+    def reset: Writeable[Transition[A]] = {
+      transition.write(Missing())
+      transition
+    }
+
+    /** Executes the code when transition is loading */
+    def whenLoading(code: => Unit): Writeable[Transition[A]] = {
+      transition /> {
+        case Loading(start) => code
+      }
+      transition
+    }
+
+    /** Executes the code when transition was successfully loaded */
+    def whenLoaded(code: A => Unit): Writeable[Transition[A]] = {
+      transition /> {
+        case Loaded(start, end, value) => code.apply(value)
+      }
+      transition
+    }
+
+    /** Executes the code when transition fails to load */
+    def whenFailed(code: String => Unit): Writeable[Transition[A]] = {
+      transition /> {
+        case Failed(start, end, reason) => code.apply(reason)
+      }
+      transition
     }
   }
 
