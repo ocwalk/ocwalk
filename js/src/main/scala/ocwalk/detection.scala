@@ -23,30 +23,37 @@ object detection extends GlobalContext with Logging {
     (voiceData && controller.model.tick) /> {
       case (Some(voice), tick) => controller.setInputVolume(voice.getLevel())
     }
+    controller.model.frequency /> { case frequencyOpt =>
+      controller.setDetection(frequencyOpt.map { frequency =>
+        val note = calculateNote(frequency)
+        val error = calculateCents(frequency, note.frequency)
+        Detection(note, frequency, error)
+      })
+    }
   }
 
   /** Starts the pitch detection and requests microphone access */
-  def start(controller: Controller): Unit = if (voiceData().isEmpty) {
+  def start(controller: Controller): Unit = if (controller.model.detector.isMissing) {
+    log.info("creating audio context")
+    val context = p5.audioContext
     (for {
       _ <- UnitFuture
       _ = controller.model.detector.loading
       _ = log.info("connecting microphone")
       voice <- p5.audioIn(controller)
       _ = log.info("loading pitch detection model")
-      pitch <- ml5.pitchDetection(controller.config.pitchModelPath, voice)
+      pitch <- ml5.pitchDetection(controller.config.pitchModelPath, voice, context)
       _ = log.info("starting pitch detection")
-      _ = pitch.register({ frequencyOpt =>
-        controller.setDetection(frequencyOpt.map { frequency =>
-          val note = calculateNote(frequency)
-          val error = calculateCents(frequency, note.frequency)
-          Detection(note, frequency, error)
-        })
-      })
+      _ = pitch.register { f =>
+        if (!controller.model.detector.isLoaded) {
+          controller.model.detector.loaded()
+          log.info("started")
+        }
+        controller.setFrequency(f)
+      }
     } yield {
       voiceData.write(Some(voice))
       pitchData.write(Some(pitch))
-      log.info("started")
-      controller.model.detector.loaded()
     }).whenFailed { up =>
       log.error("failed to start detection", up)
       controller.model.detector.failed(up.getMessage)

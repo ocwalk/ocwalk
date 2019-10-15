@@ -18,6 +18,15 @@ object PitchLayout extends JqBoxLayout[PitchPage] with GlobalContext {
 
   override def open(controller: Controller): Box = {
     val box = region(pitchPageId)
+    val startButton = textButton().mutate(_.text.textValue("Start Detection"))
+    startButton.onClick {
+      controller.startDetection()
+      startButton.layout.relEnabled.write(false)
+    }
+    controller.model.detector
+      .whenLoading(startButton.text.textValue("Loading..."))
+      .whenLoaded(_ => startButton.text.textValue("Successfully started!"))
+      .whenFailed(_ => startButton.text.textValue("Failed to start"))
     val noteText = text(pitchNoteId)
     val pitchText = text().addClass(pitchParamClass)
     val volumeText = text().addClass(pitchParamClass)
@@ -33,7 +42,8 @@ object PitchLayout extends JqBoxLayout[PitchPage] with GlobalContext {
             errorText
           ),
           noteText.fillBoth()
-        )
+        ),
+        startButton
       )
     )
 

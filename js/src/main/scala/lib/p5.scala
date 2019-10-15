@@ -19,28 +19,26 @@ object p5 extends GlobalContext with Logging {
 
   /** Creates microphone input */
   def audioIn(controller: Controller): Future[AudioIn] = {
+    implicit val listenerId: ListenerId = ListenerId()
     val promise = Promise[AudioIn]()
-    ec.execute(() => {
-      implicit val listenerId: ListenerId = ListenerId()
-      val mic = new AudioIn({ () =>
-        log.warn("AudioIn constructor error called")
-        promise.tryFailure(new IllegalStateException("Failed to create AudioIn"))
-      })
-      mic.start(
-        successCallback = { () => log.info("AudioIn start success called") },
-        errorCallback = { () =>
-          log.warn("AudioIn start error called")
-          promise.tryFailure(new IllegalStateException("Failed to start AudioIn"))
-        }
-      )
-      controller.model.tick /> { case _ =>
-        if (mic.enabled) {
-          log.info("AudioIn microphone prompt accepted")
-          controller.model.tick.forget()
-          promise.trySuccess(mic)
-        }
-      }
+    val mic = new AudioIn({ () =>
+      log.warn("AudioIn constructor error called")
+      promise.tryFailure(new IllegalStateException("Failed to create AudioIn"))
     })
+    mic.start(
+      successCallback = { () => log.info("AudioIn start success called") },
+      errorCallback = { () =>
+        log.warn("AudioIn start error called")
+        promise.tryFailure(new IllegalStateException("Failed to start AudioIn"))
+      }
+    )
+    controller.model.tick /> { case _ =>
+      if (mic.enabled) {
+        log.info("AudioIn microphone prompt accepted")
+        controller.model.tick.forget()
+        promise.trySuccess(mic)
+      }
+    }
     promise.future
   }
 

@@ -768,6 +768,9 @@ object common {
   sealed trait Transition[A] {
     /** Returns Some(value) when successfully loaded */
     def valueOpt: Option[A]
+
+    /** Returns true if the value is being loaded */
+    def isTransitioning: Boolean = false
   }
 
   object Transition {
@@ -780,6 +783,8 @@ object common {
     /** Describes value that is being loaded right now */
     case class Loading[A](start: Long) extends Transition[A] {
       override def valueOpt: Option[A] = None
+
+      override def isTransitioning: Boolean = true
     }
 
     /** Describes value that was successfully loaded */
@@ -869,6 +874,12 @@ object common {
       }
       transition
     }
+
+    /** Returns true for missing value */
+    def isMissing: Boolean = transition() == Missing()
+
+    /** Returns true for loaded value */
+    def isLoaded: Boolean = transition().isInstanceOf[Loaded[A]]
   }
 
 }

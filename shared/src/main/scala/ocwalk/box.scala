@@ -340,7 +340,10 @@ object box {
 
     /** Binds the box internal state */
     def bind(): Unit = {
-      boxLayout.absEnabled /> { case flag => updateClass(BoxClass.Enabled, flag) }
+      boxLayout.absEnabled /> { case flag =>
+        updateClass(BoxClass.Enabled, flag)
+        updateClass(BoxClass.Disabled, !flag)
+      }
     }
 
     /** Binds the box styles and registers it within the context */
@@ -488,6 +491,8 @@ object box {
     val Drag = BoxClass()
     /** Interactive boxes that are enabled for mouse interactions */
     val Enabled = BoxClass()
+    /** Interactive boxes that are disabled for mouse interactions */
+    val Disabled = BoxClass()
 
     /** Creates a unique box class */
     def apply(): BoxClass = new BoxClass() {}

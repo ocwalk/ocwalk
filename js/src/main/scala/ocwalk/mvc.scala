@@ -28,6 +28,9 @@ object mvc {
     /** Updates the current microphone volume level */
     def setInputVolume(level: Double): Double = model.inputVolume.write(level)
 
+    /** Updates the detected frequency */
+    def setFrequency(frequency: Option[Double]): Unit = model.frequency.write(frequency)
+
     /** Updates the detected note */
     def setDetection(detection: Option[Detection]): Unit = model.detection.write(detection)
 
@@ -43,10 +46,6 @@ object mvc {
 
       model.page /> {
         case page => http.updateTitle(s"OCWALK - ${page.title}")
-      }
-      model.page /> {
-        case page if page.detection => detection.start(this)
-        case other => detection.stop(this)
       }
       log.info("bound")
     }
@@ -82,6 +81,7 @@ object mvc {
     * @param page        currently displayed ocwalk page
     * @param inputVolume the current volume level from microphone
     * @param detector    transition indicating whether or not the pitch detection is loaded
+    * @param frequency   the currently detected frequency
     * @param detection   the description of detected note
     */
   case class Model(tick: Writeable[Long] = Data(0),
@@ -92,6 +92,7 @@ object mvc {
                    page: Writeable[Page] = LazyData(router.parsePage),
                    inputVolume: Writeable[Double] = LazyData(0.0),
                    detector: Writeable[Transition[Unit]] = Data(Transition.Missing()),
+                   frequency: Writeable[Option[Double]] = LazyData(None),
                    detection: Writeable[Option[Detection]] = LazyData(None))
 
   /** The current application page */

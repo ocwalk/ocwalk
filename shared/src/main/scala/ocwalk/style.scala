@@ -1,6 +1,6 @@
 package ocwalk
 
-import ocwalk.box.BoxClass.Hover
+import ocwalk.box.BoxClass.{Disabled, Hover}
 import ocwalk.box.ImageStyle._
 import ocwalk.box._
 import ocwalk.common._
@@ -91,6 +91,25 @@ object style {
       isContainer && pitchSpectrumId |> (
         _.fixedW(320),
         _.fixedH(348)
+      ),
+      isText && hasAbsParent(isTextButton) |> (
+        _.textFont(robotoSlab),
+        _.textColor(Colors.PureWhite),
+        _.textSize(24.0),
+      ),
+      isTextButton |> (
+        _.fillX(),
+        _.fillColor(Colors.Green500),
+        _.pad(10.0 xy 10.0),
+        _.cursor(Cursors.Auto),
+      ),
+      isTextButton && Hover |> (
+        _.fillColor(Colors.Green500.lighter),
+        _.cursor(Cursors.Pointer)
+      ),
+      isTextButton && Disabled |> (
+        _.fillColor(Colors.Green500.darker),
+        _.cursor(Cursors.Auto)
       )
     )
   )
