@@ -1,10 +1,10 @@
 package ocwalk
 
+import lib.facade.pixi.{TextStyle => _, _}
+import lib.pixi._
 import ocwalk.box._
 import ocwalk.common._
 import ocwalk.ops._
-import lib.facade.pixi.{TextStyle => _, _}
-import lib.pixi._
 
 object pixibox {
   /** The pixi container corresponding to box root */

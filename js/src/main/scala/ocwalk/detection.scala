@@ -1,9 +1,10 @@
 package ocwalk
 
+import lib.browser.Browsers
 import lib.facade.ml5.PitchDetection
 import lib.facade.p5.AudioIn
 import lib.ml5._
-import lib.{ml5, p5}
+import lib.{browser, ml5, p5}
 import ocwalk.common._
 import ocwalk.model._
 import ocwalk.mvc._
@@ -36,6 +37,7 @@ object detection extends GlobalContext with Logging {
   def start(controller: Controller): Unit = if (controller.model.detector.isMissing) {
     log.info("creating audio context")
     val context = p5.audioContext
+    if (browser.tpe == Browsers.Chrome) context.resume()
     (for {
       _ <- UnitFuture
       _ = controller.model.detector.loading

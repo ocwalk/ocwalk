@@ -4,10 +4,10 @@ import lib.facade.pixi
 import lib.facade.pixi.{Container, Graphics, Text}
 import lib.pixi._
 import ocwalk.box._
-import ocwalk.ops._
 import ocwalk.common._
 import ocwalk.model.Note
 import ocwalk.mvc._
+import ocwalk.ops._
 import ocwalk.pages.pages.JqBoxLayout
 import ocwalk.style._
 import ocwalk.util.global.GlobalContext
