@@ -31,17 +31,19 @@ object PitchLayout extends JqBoxLayout[PitchPage] with GlobalContext {
     val pitchText = text().addClass(pitchParamClass)
     val volumeText = text().addClass(pitchParamClass)
     val errorText = text().addClass(pitchParamClass)
+    val tpsText = text().addClass(pitchParamClass)
     val spectrum = drawBox(pitchSpectrumId)
     box.sub(
       vbox().sub(
         spectrum,
-        hbox().fillBoth().sub(
-          vbox().fillBoth().sub(
+        hbox().fillX().sub(
+          vbox().fillX().sub(
             pitchText,
             volumeText,
-            errorText
+            errorText,
+            tpsText
           ),
-          noteText.fillBoth()
+          noteText.fillX()
         ),
         startButton
       )
@@ -124,6 +126,9 @@ object PitchLayout extends JqBoxLayout[PitchPage] with GlobalContext {
         noteText.textValue("N/A")
         pitchText.textValue("Pitch: N/A")
         errorText.textValue(s"Error: N/A")
+    }
+    controller.model.detectionTps /> {
+      case tps => tpsText.textValue(s"TPS: $tps")
     }
     box
   }

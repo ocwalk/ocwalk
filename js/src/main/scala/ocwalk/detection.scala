@@ -52,6 +52,7 @@ object detection extends GlobalContext with Logging {
           log.info("started")
         }
         controller.setFrequency(f)
+        controller.updateDetectionCounter()
       }
     } yield {
       voiceData.write(Some(voice))

@@ -3,6 +3,7 @@ package ocwalk
 import ocwalk.common._
 import ocwalk.conf.OcwalkConfig
 import ocwalk.model.Note
+import ocwalk.util.counter.Counter
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.http
 import ocwalk.util.logging.Logging
@@ -18,6 +19,7 @@ object mvc {
 
     val timer = new Timer()
     val animator = new Animator()
+    val detectionCounter = new Counter(model.detectionTps)
 
     /** Updates the rendering screen size */
     def setScreenSize(size: Vec2i): Unit = model.screen.write(size)
@@ -33,6 +35,9 @@ object mvc {
 
     /** Updates the detected note */
     def setDetection(detection: Option[Detection]): Unit = model.detection.write(detection)
+
+    /** Updates the detection tps counter */
+    def updateDetectionCounter(): Unit = detectionCounter.update()
 
     /** Launches the controller at a given application path */
     def start(path: String): Future[Unit] = Future {
@@ -73,16 +78,17 @@ object mvc {
 
   /** Defines model with common fields
     *
-    * @param tick        the current update tick
-    * @param frame       the current rendering frame
-    * @param screen      the current screen size
-    * @param scale       the current screen scale
-    * @param mouse       current mouse coordinates
-    * @param page        currently displayed ocwalk page
-    * @param inputVolume the current volume level from microphone
-    * @param detector    transition indicating whether or not the pitch detection is loaded
-    * @param frequency   the currently detected frequency
-    * @param detection   the description of detected note
+    * @param tick         the current update tick
+    * @param frame        the current rendering frame
+    * @param screen       the current screen size
+    * @param scale        the current screen scale
+    * @param mouse        current mouse coordinates
+    * @param page         currently displayed ocwalk page
+    * @param inputVolume  the current volume level from microphone
+    * @param detector     transition indicating whether or not the pitch detection is loaded
+    * @param frequency    the currently detected frequency
+    * @param detection    the description of detected note
+    * @param detectionTps the times per second when detection is updated
     */
   case class Model(tick: Writeable[Long] = Data(0),
                    frame: Writeable[Long] = Data(0),
@@ -93,7 +99,8 @@ object mvc {
                    inputVolume: Writeable[Double] = LazyData(0.0),
                    detector: Writeable[Transition[Unit]] = Data(Transition.Missing()),
                    frequency: Writeable[Option[Double]] = LazyData(None),
-                   detection: Writeable[Option[Detection]] = LazyData(None))
+                   detection: Writeable[Option[Detection]] = LazyData(None),
+                   detectionTps: Writeable[Int] = Data(0))
 
   /** The current application page */
   sealed trait Page {
