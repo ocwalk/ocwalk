@@ -33,57 +33,57 @@ class StretcherSpec extends Spec {
 
     "stretch two same fill 1 boxes" in {
       stretch(List(
-        container().fillX().fixedW(20),
-        container().fillX().fixedW(20)
+        container().fillX.fixedW(20),
+        container().fillX.fixedW(20)
       ), 100) shouldBe List(50, 50)
     }
 
     "stretch two different fill 1 boxes" in {
       stretch(List(
-        container().fillX().fixedW(20),
-        container().fillX().fixedW(40)
+        container().fillX.fixedW(20),
+        container().fillX.fixedW(40)
       ), 100) shouldBe List(50, 50)
 
       stretch(List(
-        container().fillX().fixedW(40),
-        container().fillX().fixedW(20)
+        container().fillX.fixedW(40),
+        container().fillX.fixedW(20)
       ), 100) shouldBe List(50, 50)
 
       stretch(List(
-        container().fillX().fixedW(20),
-        container().fillX().fixedW(60)
+        container().fillX.fixedW(20),
+        container().fillX.fixedW(60)
       ), 100) shouldBe List(40, 60)
 
       stretch(List(
-        container().fillX().fixedW(60),
-        container().fillX().fixedW(20)
+        container().fillX.fixedW(60),
+        container().fillX.fixedW(20)
       ), 100) shouldBe List(60, 40)
     }
 
     "stretch three different fill 1 boxes" in {
       stretch(List(
-        container().fillX().fixedW(20),
-        container().fillX().fixedW(30),
-        container().fillX().fixedW(40)
+        container().fillX.fixedW(20),
+        container().fillX.fixedW(30),
+        container().fillX.fixedW(40)
       ), 100) shouldBe List(30, 30, 40)
 
       stretch(List(
-        container().fillX().fixedW(40),
-        container().fillX().fixedW(10),
-        container().fillX().fixedW(10)
+        container().fillX.fixedW(40),
+        container().fillX.fixedW(10),
+        container().fillX.fixedW(10)
       ), 100) shouldBe List(40, 30, 30)
     }
 
     "stretch a mix of boxes" in {
       stretch(List(
-        container().fillX().fixedW(20),
+        container().fillX.fixedW(20),
         container().fixedW(20),
-        container().fillX().fixedW(20)
+        container().fillX.fixedW(20)
       ), 100) shouldBe List(40, 20, 40)
 
       stretch(List(
         container().fillX(2).fixedW(20),
-        container().fillX().fixedW(20)
+        container().fillX.fixedW(20)
       ), 100) shouldBe List(60, 40)
     }
   }

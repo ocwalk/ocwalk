@@ -20,6 +20,9 @@ object box {
     }.bindAndRegister()
   }
 
+  /** Creates an instance of stack container */
+  def container(implicit context: BoxContext, assignedStyler: Styler): ContainerBox = this.container()
+
   /** Creates an instance of container with background color */
   def region(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): RegionBox = {
     val assignedId = id
@@ -48,6 +51,9 @@ object box {
     }.bindAndRegister()
   }
 
+  /** Creates an instance of box with text */
+  def text(implicit context: BoxContext, assignedStyler: Styler): TextBox = this.text()
+
   /** Creates an instance of button box with custom content */
   def button(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ContainerButtonBox = {
     val assignedId = id
@@ -74,6 +80,26 @@ object box {
       override def styler: Styler = assignedStyler
     }.bindAndRegister()
     button.sub(delegate)
+  }
+
+  /** Creates an hbox button with icon on the left and text on the right */
+  def iconTextButton(icon: IconValue, text: String, id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ContainerButtonBox = {
+    button(id).sub(
+      hbox().sub(
+        this.icon().mutate(_.iconValue(icon)),
+        this.text().mutate(_.textValue(text))
+      )
+    )
+  }
+
+  /** Creates an hbox button with image on the left and text on the right */
+  def imageTextButton(image: ImageReference, text: String, id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ContainerButtonBox = {
+    button(id).sub(
+      hbox().sub(
+        this.image().mutate(_.imageRef(image)),
+        this.text().mutate(_.textValue(text))
+      )
+    )
   }
 
   /** Creates an instance of grid box container */
@@ -105,6 +131,9 @@ object box {
       override def styler: Styler = assignedStyler
     }.bindAndRegister()
   }
+
+  /** Creates an instance of vertical box container */
+  def vbox(implicit context: BoxContext, assignedStyler: Styler): VBox = this.vbox()
 
   /** Creates an instance of icon box */
   def icon(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): IconBox = {
@@ -173,8 +202,7 @@ object box {
   implicit def classSelector(clazz: BoxClass): Selector[Box] = hasClass(clazz)
 
   /** Selects any box that is or within the box with given id */
-  def under(id: BoxId): Selector[Box] = {
-    val selector: Selector[_] = id
+  def under(selector: Selector[_]): Selector[Box] = {
     box => selector.appliesTo(box) || box.layout.absParents().exists(selector.appliesTo)
   }
 
@@ -198,6 +226,12 @@ object box {
 
   /** Selector for vertical boxes */
   val isVBox: Selector[VBox] = isA[VBox]
+
+  /** Selector for icon boxes */
+  val isIcon: Selector[IconBox] = isA[IconBox]
+
+  /** Selector for image boxes */
+  val isImage: Selector[ImageBox] = isA[ImageBox]
 
   /** The id of the box */
   case class BoxId(value: String = uuid) {
@@ -241,6 +275,9 @@ object box {
       list.foreach(child => child.updateParent(this :: Nil))
       this
     }
+
+    /** Replaces current children with a given list of children */
+    def subs(children: List[Box]): this.type = sub(children: _*)
 
     /** Refreshed the style of this box */
     def refreshStyle(): Unit = styler.apply(this)
@@ -302,17 +339,26 @@ object box {
       this
     }
 
+    /** Updates the fill.x to 1.0 */
+    def fillX: this.type = this.fillX()
+
     /** Updates the fill.x to a given value */
     def fillY(fill: Double = 1.0): this.type = {
       boxLayout.fill.write(boxLayout.fill().copy(y = fill))
       this
     }
 
+    /** Updates the fill.x to 1.0 */
+    def fillY: this.type = this.fillY()
+
     /** Updates both fill.x and fill.y to the given value */
     def fillBoth(fill: Double = 1.0): this.type = {
       boxLayout.fill.write(fill xy fill)
       this
     }
+
+    /** Updates both fill.x and fill.y to 1.0 */
+    def fillBoth: this.type = this.fillBoth()
 
     /** Updates both fill.x and fill.y to 0 */
     def fillNone(): this.type = {
@@ -835,6 +881,12 @@ object box {
   /** Displays a line of text */
   trait TextBox extends Box with TextStyle {
     def boxContext: BoxContext
+
+    /** Changes the text value of the box */
+    def as(value: String): TextBox = {
+      this.textValue(value)
+      this
+    }
 
     override def calculateMinimumWidth: Double = {
       textFont().textMetric(textValue(), textSize())(boxContext).x

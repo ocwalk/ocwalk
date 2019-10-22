@@ -2,10 +2,10 @@ package ocwalk.util
 
 import java.util.UUID
 
+import lib.facade.pixi.DisplayObject
 import ocwalk.common._
 import ocwalk.mvc.Controller
 import ocwalk.ops._
-import lib.facade.pixi.DisplayObject
 import ocwalk.util.global.GlobalContext
 
 import scala.concurrent.duration._

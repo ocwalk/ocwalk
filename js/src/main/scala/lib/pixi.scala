@@ -4,7 +4,6 @@ import lib.facade.pixi.{Application, Graphics}
 import ocwalk.box._
 import ocwalk.common.{Color, Colors, Vec2d}
 import ocwalk.util.logging.Logging
-import org.querki.jquery._
 import org.scalajs.dom.raw.HTMLCanvasElement
 
 import scala.scalajs.js

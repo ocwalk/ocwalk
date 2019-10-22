@@ -3,6 +3,7 @@ package ocwalk
 import ocwalk.common._
 import ocwalk.conf.OcwalkConfig
 import ocwalk.model.Note
+import ocwalk.pages.HeaderLayout
 import ocwalk.util.counter.Counter
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.http
@@ -45,6 +46,7 @@ object mvc {
       router.start(this)
       pages.pages.start(this)
       detection.bind(this)
+      HeaderLayout.bind(this)
       timer.start(60, () => model.tick.write(model.tick() + 1))
       animator.start(() => model.frame.write(model.frame() + 1))
       log.info(s"started")
@@ -62,12 +64,17 @@ object mvc {
 
     /** Redirects to kickstarter page */
     def showKickstarter(): Unit = {
-      http.redirectFull("https://www.kickstarter.com/projects/owispyo/ocwalk")
+      http.newTab("https://www.kickstarter.com/projects/owispyo/ocwalk")
     }
 
     /** Redirects to join discord page */
     def showDiscord(): Unit = {
-      http.redirectFull("https://discord.gg/FJ7r34W")
+      http.newTab("https://discord.gg/FJ7r34W")
+    }
+
+    /** Redirects to shop page */
+    def showShop(): Unit = {
+      http.newTab("https://www.songbirdocarina.com")
     }
 
     /** Redirect to given page within ocwalk */
@@ -111,9 +118,9 @@ object mvc {
     def detection: Boolean = false
   }
 
-  /** The starting page of the application */
-  case class HomePage(foo: Option[String]) extends Page {
-    override def title: String = "Home"
+  /** The temporary dragons page */
+  case class DragonsPage(foo: Option[String]) extends Page {
+    override def title: String = "Dragons"
   }
 
   /** The page displaying sound spectrum from microphone */
@@ -121,6 +128,16 @@ object mvc {
     override def title: String = "Pitch detection"
 
     override def detection: Boolean = true
+  }
+
+  /** The starting page of the application */
+  case class HomePage() extends Page {
+    override def title: String = "Home"
+  }
+
+  /** The page that lists all of the projects */
+  case class LibraryPage() extends Page {
+    override def title: String = "Library"
   }
 
   /** The page containing a specific ocwalk project */

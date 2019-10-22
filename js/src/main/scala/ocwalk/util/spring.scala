@@ -3,10 +3,10 @@ package ocwalk.util
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
 
+import lib.facade.pixi._
 import ocwalk.common._
 import ocwalk.mvc.Controller
 import ocwalk.ops._
-import lib.facade.pixi._
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.logging.Logging
 

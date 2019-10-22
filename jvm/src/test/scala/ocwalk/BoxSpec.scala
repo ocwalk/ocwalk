@@ -269,7 +269,7 @@ class BoxSpec extends Spec {
       implicit val styles: Styler = StyleSheet(
         isRegion && a |> (
           _.pad(20.0 xy 20.0),
-          _.fillBoth(),
+          _.fillY,
         ),
         isRegion && b |> (_.pad(20.0 xy 20.0)),
         isText && c |> (_.textSize(20.0)),
@@ -302,10 +302,10 @@ class BoxSpec extends Spec {
       //  +-----+--+---------+ width: 10, 20, 30
       //  fill: 2,1
       //  height: 40, 20
-      val aa = container(BoxId("aa")).fixedW(20).fillX().fixedH(40).fillY(2)
+      val aa = container(BoxId("aa")).fixedW(20).fillX.fixedH(40).fillY(2)
       val ab = container(BoxId("ab")).fixedW(10)
       val ac = container(BoxId("ac")).fixedW(20).fillX(2)
-      val ba = container(BoxId("ba")).fixedW(10).fillX().fixedH(20).fillY()
+      val ba = container(BoxId("ba")).fixedW(10).fillX.fixedH(20).fillY
       val bb = container(BoxId("bb")).fixedW(20)
       val bc = container(BoxId("bc")).fixedW(30)
 
@@ -332,9 +332,9 @@ class BoxSpec extends Spec {
     }
 
     "layout hbox" in new SimpleBase {
-      val a = container().fixedW(10).fillBoth().fixedH(10)
-      val b = container().fixedW(20).fillY()
-      val c = container().fixedW(30).fillBoth().fixedH(20)
+      val a = container().fixedW(10).fillBoth.fixedH(10)
+      val b = container().fixedW(20).fillY
+      val c = container().fixedW(30).fillBoth.fixedH(20)
       hbox()
         .mutate { b =>
           b.fixedW(100)
@@ -350,9 +350,9 @@ class BoxSpec extends Spec {
     }
 
     "layout vbox" in new SimpleBase {
-      val a = container().fixedH(10).fillBoth().fixedW(10)
-      val b = container().fixedH(20).fillX()
-      val c = container().fixedH(30).fillBoth().fixedW(20)
+      val a = container().fixedH(10).fillBoth.fixedW(10)
+      val b = container().fixedH(20).fillX
+      val c = container().fixedH(30).fillBoth.fixedW(20)
       vbox()
         .mutate { b =>
           b.fixedW(50)
@@ -368,9 +368,9 @@ class BoxSpec extends Spec {
     }
 
     "layout free box" ignore new SimpleBase {
-      val fill = region().fillBoth()
+      val fill = region().fillBoth
       val a = container().fixedW(20).fixedH(10)
-      val b = container().fixedW(5).fillY()
+      val b = container().fixedW(5).fillY
       val c = container().fixedW(5).fixedH(5)
       fbox()
         .sub(a, b, c, fill)

@@ -46,6 +46,11 @@ object http extends Logging {
     window.location.href = uri
   }
 
+  /** Opens the given uri in a new tab */
+  def newTab(uri: String): Unit = {
+    window.open(uri, "_blank")
+  }
+
   /** Redirects to given url without reloading the page */
   def redirectSilent(path: String): Unit = {
     history.push(path)

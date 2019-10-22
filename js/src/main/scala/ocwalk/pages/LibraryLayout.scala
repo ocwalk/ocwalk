@@ -6,10 +6,10 @@ import ocwalk.pages.HeaderLayout._
 import ocwalk.pages.pages.JqBoxLayout
 import ocwalk.style._
 
-/** Dragons page layout */
-object HomeLayout extends JqBoxLayout[HomePage] {
+/** Project library page layout */
+object LibraryLayout extends JqBoxLayout[LibraryPage] {
   private implicit val stylesheet: Styler = StyleSheet(
-    under(homeId).sub(
+    under(libraryId).sub(
       isRegion |> (
         _.fillColor(whiteColor),
         )
@@ -17,10 +17,10 @@ object HomeLayout extends JqBoxLayout[HomePage] {
   )
 
   override def open(controller: Controller): Box = {
-    region(homeId).fillBoth.sub(
+    region(libraryId).fillBoth.sub(
       vbox.fillBoth.sub(
         header(navHome :: navLibrary :: navShop :: Nil),
-        container.fillY.sub(text.as("Home content")),
+        container.fillY.sub(text.as("Library content")),
       )
     )
   }

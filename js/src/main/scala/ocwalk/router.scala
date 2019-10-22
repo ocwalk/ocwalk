@@ -5,8 +5,8 @@ import lib.uri._
 import ocwalk.format._
 import ocwalk.mapping._
 import ocwalk.mvc._
-import ocwalk.pages.pages._
 import ocwalk.pages._
+import ocwalk.pages.pages._
 import ocwalk.util.http
 import ocwalk.util.logging.Logging
 
@@ -19,9 +19,11 @@ object router extends Logging {
 
   /** A routing table for all application pages */
   val routes: List[Route[_]] = List(
-    Route("/", format1(HomePage), HomeLayout),
+    Route("/", format1(DragonsPage), DragonsLayout),
     Route("/project/{id}", format3(ProjectPage), ProjectLayout),
     Route("/pitch", format0(PitchPage), PitchLayout),
+    Route("/home", format0(HomePage), HomeLayout),
+    Route("/library", format0(LibraryPage), LibraryLayout),
   )
 
   /** The default route to fallback to on errors */

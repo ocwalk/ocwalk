@@ -11,8 +11,8 @@ import ocwalk.util._
 import ocwalk.util.global.GlobalContext
 import ocwalk.util.http._
 import ocwalk.util.logging.Logging
-import org.scalajs.dom._
 import org.querki.jquery._
+import org.scalajs.dom._
 
 import scala.concurrent.Future
 

@@ -3,6 +3,7 @@ package ocwalk.pages
 import lib.facade.pixi
 import lib.facade.pixi.{Container, Graphics, Text}
 import lib.pixi._
+import ocwalk.box.BoxClass._
 import ocwalk.box._
 import ocwalk.common._
 import ocwalk.model.Note
@@ -15,6 +16,54 @@ import ocwalk.util.global.GlobalContext
 /** Pitch page demo layout */
 object PitchLayout extends JqBoxLayout[PitchPage] with GlobalContext {
   private implicit val listenerId: ListenerId = ListenerId()
+  private implicit val stylesheet: Styler = StyleSheet(
+    under(pitchPageId).sub(
+      isRegion |> (
+        _.fillColor(Colors.PureWhite)
+        ),
+      isText |> (
+        _.textFont(robotoSlab),
+        _.textColor(Colors.PureBlack)
+      ),
+      isVBox |> (
+        _.spacingY(10.0)
+        ),
+      isHBox |> (
+        _.spacingX(10.0),
+        _.pad(10.0 xy 0.0)
+      ),
+      isText && pitchNoteId |> (
+        _.textSize(72.0)
+        ),
+      isText && pitchParamClass |> (
+        _.textSize(24.0),
+        _.align(Vec2d.Left)
+      ),
+      isContainer && pitchSpectrumId |> (
+        _.fixedW(320),
+        _.fixedH(348)
+      ),
+      isText && hasAbsParent(isTextButton) |> (
+        _.textFont(robotoSlab),
+        _.textColor(Colors.PureWhite),
+        _.textSize(24.0),
+      ),
+      isTextButton |> (
+        _.fillX,
+        _.fillColor(Colors.Green500),
+        _.pad(10.0 xy 10.0),
+        _.cursor(Cursors.Auto),
+      ),
+      isTextButton && Hover |> (
+        _.fillColor(Colors.Green500.lighter),
+        _.cursor(Cursors.Pointer)
+      ),
+      isTextButton && Disabled |> (
+        _.fillColor(Colors.Green500.darker),
+        _.cursor(Cursors.Auto)
+      )
+    )
+  )
 
   override def open(controller: Controller): Box = {
     val box = region(pitchPageId)
@@ -36,14 +85,14 @@ object PitchLayout extends JqBoxLayout[PitchPage] with GlobalContext {
     box.sub(
       vbox().sub(
         spectrum,
-        hbox().fillX().sub(
-          vbox().fillX().sub(
+        hbox().fillX.sub(
+          vbox().fillX.sub(
             pitchText,
             volumeText,
             errorText,
             tpsText
           ),
-          noteText.fillX()
+          noteText.fillX
         ),
         startButton
       )
