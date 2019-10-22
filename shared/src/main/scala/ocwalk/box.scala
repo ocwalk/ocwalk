@@ -82,6 +82,9 @@ object box {
     button.sub(delegate)
   }
 
+  /** Creates an instance of button box with text label */
+  def textButton(implicit context: BoxContext, assignedStyler: Styler): TextButtonBox = this.textButton()
+
   /** Creates an hbox button with icon on the left and text on the right */
   def iconTextButton(icon: IconValue, text: String, id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ContainerButtonBox = {
     button(id).sub(
@@ -122,6 +125,9 @@ object box {
     }.bindAndRegister()
   }
 
+  /** Creates an instance of horizontal box container */
+  def hbox(implicit context: BoxContext, assignedStyler: Styler): HBox = this.hbox()
+
   /** Creates an instance of vertical box container */
   def vbox(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): VBox = {
     val assignedId = id
@@ -145,6 +151,9 @@ object box {
     }.bindAndRegister()
   }
 
+  /** Creates an instance of icon box */
+  def icon(implicit context: BoxContext, assignedStyler: Styler): IconBox = this.icon()
+
   /** Creates an instance of image box */
   def image(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): ImageBox = {
     val assignedId = id
@@ -154,6 +163,9 @@ object box {
       override def styler: Styler = assignedStyler
     }.bindAndRegister()
   }
+
+  /** Creates an instance of image box */
+  def image(implicit context: BoxContext, assignedStyler: Styler): ImageBox = this.image()
 
   /** Creates an instance of free placement container box */
   def fbox(id: BoxId = BoxId())(implicit context: BoxContext, assignedStyler: Styler): FreeBox = {
@@ -883,10 +895,7 @@ object box {
     def boxContext: BoxContext
 
     /** Changes the text value of the box */
-    def as(value: String): TextBox = {
-      this.textValue(value)
-      this
-    }
+    def as(value: String): TextBox = this.mutate(_.textValue(value))
 
     override def calculateMinimumWidth: Double = {
       textFont().textMetric(textValue(), textSize())(boxContext).x
@@ -915,6 +924,9 @@ object box {
   /** Interactive button box with text label */
   trait TextButtonBox extends ContainerButtonBox {
     val text: TextBox
+
+    /** Sets the text value of the button */
+    def as(value: String): TextButtonBox = this.mutate(_.text.as(value))
   }
 
   /** Interactive button box with custom content */
@@ -1039,6 +1051,9 @@ object box {
 
   /** Box that renders a scalable icon */
   trait IconBox extends Box with IconStyle {
+    /** Updates the icon value */
+    def as(icon: IconValue): IconBox = this.mutate(_.iconValue(icon))
+
     override def calculateMinimumWidth: Double = iconSize()
 
     override def calculateMinimumHeight: Double = iconSize()
@@ -1124,6 +1139,9 @@ object box {
 
   /** Box that renders image of o static size */
   trait ImageBox extends Box with ImageStyle {
+    /** Updates the image value */
+    def as(image: ImageReference): ImageBox = this.mutate(_.imageRef(image))
+
     override def calculateMinimumWidth: Double = imageRef().size.x
 
     override def calculateMinimumHeight: Double = imageRef().size.y

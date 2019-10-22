@@ -19,8 +19,6 @@ object style {
   val logoBlackFull = logo.ref(color = _ => blackColor)
   val logoPrimary32 = logo.ref(size = 32 xy 32, color = _ => primaryColor)
   val logoWhite32 = logo.ref(size = 32 xy 32, color = _ => whiteColor)
-  val logoWhite64 = logo.ref(size = 64 xy 64, color = _ => whiteColor)
-  val logoBlack64 = logo.ref(size = 64 xy 64, color = _ => blackColor)
 
   val test = tileset.source("/image/test-2.png")
   val testTintFull = test.ref(color = _.tint(Colors.Blue500, 0.5))
@@ -35,6 +33,7 @@ object style {
   val headerId = BoxId()
   val navId = BoxId()
   val navButtonClass = BoxClass()
+  val userBoxId = BoxId()
 
   /** DRAGONS */
   val dragonsId = BoxId()

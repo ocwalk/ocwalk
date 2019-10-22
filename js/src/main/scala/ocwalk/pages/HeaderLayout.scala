@@ -41,6 +41,17 @@ object HeaderLayout {
         _.iconColor(whiteColor)
       ),
     ),
+    under(userBoxId).sub(
+      isText |> (
+        _.textFont(robotoSlab),
+        _.textSize(16.0),
+        _.textColor(whiteColor),
+      ),
+      isIcon |> (
+        _.iconColor(whiteColor),
+        _.iconSize(32.0)
+      )
+    )
   )
 
   /** Converts button into navigation button */
@@ -53,6 +64,19 @@ object HeaderLayout {
   /** Navigation that takes your to shop website */
   val navShop: ContainerButtonBox = nav(iconTextButton(MaterialDesign.ShoppingCart, "Buy Ocarina"))
 
+  private val userText: TextBox = text.as("Guest")
+  private val signInButton: TextButtonBox = textButton.as("Sign In")
+  private val signOutButton: TextButtonBox = textButton.as("Sign Out")
+  private val userBox: ContainerBox = container(userBoxId).sub(
+    hbox.fillY.sub(
+      vbox.fillY.sub(
+        userText,
+        signInButton
+      ),
+      icon.as(MaterialDesign.Person)
+    )
+  )
+
   /** Binds the listeners to header buttons */
   def bind(controller: Controller): Unit = {
     navHome.onClick(controller.showPage(HomePage()))
@@ -61,9 +85,11 @@ object HeaderLayout {
   }
 
   /** Creates a header box with navigation */
-  def header(nav: List[ContainerButtonBox]): Box = {
+  def header(nav: List[ContainerButtonBox], user: Boolean = true): Box = {
+    val userBoxList = if (user) userBox :: Nil else Nil
+    val fillerList = List(container.fillX)
     region(headerId).fillX.sub(
-      hbox(navId).fillX.subs(nav :+ container.fillX)
+      hbox(navId).fillX.subs(nav ++ fillerList ++ userBoxList)
     )
   }
 }
